@@ -22,6 +22,13 @@ class User extends Model {
     }
 
     /**
+     * Oculta os campos definidos como ocultos, das queries no DB
+     */
+    static get hidden() {
+        return ['password']
+    }
+
+    /**
      * User Traits
      */
     static get traits() {
