@@ -39,3 +39,12 @@ Factory.blueprint('App/Models/Product', faker => {
         price: faker.floating({ min: 0, max: 200, fixed: 2 })
     }
 })
+
+Factory.blueprint('App/Models/Coupon', faker => {
+    return {
+        name: faker.country({ full: true }).toUpperCase(),
+        discount: faker.floating({ min: 5, max: 30, fixed: 2 }),
+        quantity: 1,
+        type: 'percent'
+    }
+})
