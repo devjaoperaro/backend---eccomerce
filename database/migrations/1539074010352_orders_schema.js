@@ -18,6 +18,13 @@ class OrdersSchema extends Schema {
                 .enu('status', ['awaiting', 'cancelled', 'shipped', 'paid'])
                 .defaultTo('awaiting')
 
+            table.integer('cart_id').unsigned()
+            table
+                .foreign('cart_id')
+                .references('id')
+                .inTable('carts')
+                .onDelete('cascade')
+
             table.timestamps()
         })
     }
