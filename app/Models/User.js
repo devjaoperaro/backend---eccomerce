@@ -59,6 +59,14 @@ class User extends Model {
     coupons() {
         return this.belongsToMany('App/Models/Coupon')
     }
+
+    carts() {
+        return this.hasMany('App/Models/Cart')
+    }
+
+    cart() {
+        return this.hasOne('App/Models/Cart')
+    }
 }
 
 module.exports = User

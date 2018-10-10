@@ -48,3 +48,14 @@ Factory.blueprint('App/Models/Coupon', faker => {
         type: 'percent'
     }
 })
+
+Factory.blueprint('App/Models/Cart', faker => {
+    return {}
+})
+
+Factory.blueprint('App/Models/CartItem', faker => {
+    return {
+        product_id: faker.integer({ min: 0, max: 25 }),
+        cart_id: faker.integer({ min: 1, max: 10 })
+    }
+})
