@@ -63,10 +63,6 @@ class User extends Model {
     carts() {
         return this.hasMany('App/Models/Cart')
     }
-
-    cart() {
-        return this.hasOne('App/Models/Cart')
-    }
 }
 
 module.exports = User
