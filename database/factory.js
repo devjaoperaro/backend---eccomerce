@@ -55,7 +55,8 @@ Factory.blueprint('App/Models/Cart', faker => {
 
 Factory.blueprint('App/Models/CartItem', faker => {
     return {
-        product_id: faker.integer({ min: 0, max: 25 }),
-        cart_id: faker.integer({ min: 1, max: 10 })
+        product_id: faker.integer({ min: 1, max: 25 }),
+        cart_id: faker.integer({ min: 1, max: 10 }),
+        qty: faker.integer({ min: 1, max: 4 })
     }
 })
