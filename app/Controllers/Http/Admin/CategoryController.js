@@ -20,20 +20,9 @@ class CategoryController {
      * @param {View} ctx.view
      */
     async index({ request, response, view }) {
-        const categories = await Category.all()
+        const categories = await Category.query().paginate()
         return response.send(categories)
     }
-
-    /**
-     * Render a form to be used for creating a new category.
-     * GET categories/create
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-    async create({ request, response, view }) {}
 
     /**
      * Create/save a new category.
@@ -43,7 +32,11 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {}
+    async store({ request, response }) {
+        const { title, description } = request.all()
+        const category = await Category.create({ title, description })
+        return response.status(201).send(category)
+    }
 
     /**
      * Display a single category.
