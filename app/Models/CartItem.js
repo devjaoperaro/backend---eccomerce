@@ -4,12 +4,6 @@
 const Model = use('Model')
 
 class CartItem extends Model {
-    static boot() {
-        super.boot()
-        this.addHook('afterCreate', 'CartItemHook.incrementCartTotal')
-        this.addHook('beforeDelete', 'CartItemHook.decrementCartTotal')
-    }
-
     product() {
         return this.belongsTo('App/Models/Product')
     }
