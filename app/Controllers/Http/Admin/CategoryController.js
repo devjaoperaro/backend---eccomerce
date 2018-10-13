@@ -5,8 +5,10 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 const Category = use('App/Models/Category')
+const Image = use('App/Models/Image')
 const Helpers = use('Helpers')
 const { str_random } = use('App/Helpers')
+const Database = use('Database')
 /**
  * Resourceful controller for interacting with categories
  */
@@ -34,30 +36,60 @@ class CategoryController {
      * @param {Response} ctx.response
      */
     async store({ request, response }) {
-        const { title, description } = request.all()
+        try {
+            const transaction = await Database.beginTransaction()
+            const { title, description } = request.all()
 
-        // Tratamento da imagem
-        const image = request.file('image', {
-            types: ['image'],
-            size: '2mb'
-        })
+            // Tratamento da imagem
+            const image = request.file('image', {
+                types: ['image'],
+                size: '2mb'
+            })
 
-        // gera um nome aleatório
-        const filename = await str_random(30)
+            // gera um nome aleatório
+            const random_name = await str_random(30)
+            let filename = `${new Date().getTime()}_${random_name}.${
+                image.subtype
+            }`
 
-        // renomeia o arquivo e move para a pasta public/uploads
-        await image.move(Helpers.publicPath('uploads'), {
-            name: `${new Date().getTime()}_${filename}.${image.subtype}`
-        })
+            // renomeia o arquivo e move para a pasta public/uploads
+            await image.move(Helpers.publicPath('uploads'), {
+                name: filename
+            })
 
-        if (!image.moved()) {
+            // verifica se foi movido e retorna o erro
+            if (!image.moved()) {
+                throw image.error()
+            }
+
+            const category_image = await Image.create(
+                {
+                    path: filename,
+                    size: image.size,
+                    original_name: image.clientName,
+                    extension: image.subtype
+                },
+                transaction
+            )
+
+            const category = await Category.create(
+                {
+                    title,
+                    description,
+                    image_id: category_image.id
+                },
+                transaction
+            )
+            await transaction.commit()
+
+            return response.status(201).send(category)
+        } catch (e) {
+            await transaction.rollback()
             return response.status(400).send({
                 message: 'Erro ao processar sua requisição',
-                error: image.error()
+                error: e.message
             })
         }
-        const category = await Category.create({ title, description })
-        return response.status(201).send(category)
     }
 
     /**
