@@ -5,7 +5,8 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
 const Category = use('App/Models/Category')
-
+const Helpers = use('Helpers')
+const { str_random } = use('App/Helpers')
 /**
  * Resourceful controller for interacting with categories
  */
@@ -34,6 +35,27 @@ class CategoryController {
      */
     async store({ request, response }) {
         const { title, description } = request.all()
+
+        // Tratamento da imagem
+        const image = request.file('image', {
+            types: ['image'],
+            size: '2mb'
+        })
+
+        // gera um nome aleatório
+        const filename = await str_random(30)
+
+        // renomeia o arquivo e move para a pasta public/uploads
+        await image.move(Helpers.publicPath('uploads'), {
+            name: `${new Date().getTime()}_${filename}.${image.subtype}`
+        })
+
+        if (!image.moved()) {
+            return response.status(400).send({
+                message: 'Erro ao processar sua requisição',
+                error: image.error()
+            })
+        }
         const category = await Category.create({ title, description })
         return response.status(201).send(category)
     }
