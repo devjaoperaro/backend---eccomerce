@@ -22,7 +22,9 @@ Route.get('/', () => {
 
 // Authentication Routes
 Route.group(() => {
-    Route.post('register', 'AuthController.register').as('auth.register')
+    Route.post('/register', 'AuthController.register')
+        .as('auth.register')
+        .validator('ClientRegister')
     Route.post('login', 'AuthController.login').as('auth.login')
     Route.post('refresh', 'AuthController.refresh').as('auth.refresh')
     Route.post('logout', 'AuthController.logout')

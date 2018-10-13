@@ -6,10 +6,10 @@ const Database = use('Database')
 
 class AuthController {
     async register({ request, response }) {
-        try {
-            const trx = await Database.beginTransaction()
+        const trx = await Database.beginTransaction()
 
-            const { name, surname, email, password } = request.all() // request.body
+        try {
+            const { name, surname, email, password } = request.all()
 
             const user = await User.create(
                 { name, surname, email, password },
@@ -19,7 +19,7 @@ class AuthController {
             const userRole = await Role.findBy('slug', 'client')
 
             // Associa o userRole ao User
-            await user.roles().attach([userRole.id])
+            await user.roles().attach([userRole.id], null, trx)
 
             await trx.commit()
             return response.status(201).send({ data: user })
