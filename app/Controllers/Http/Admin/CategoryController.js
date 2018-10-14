@@ -104,17 +104,6 @@ class CategoryController {
     async show({ params, request, response, view }) {}
 
     /**
-     * Render a form to update an existing category.
-     * GET categories/:id/edit
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-    async edit({ params, request, response, view }) {}
-
-    /**
      * Update category details.
      * PUT or PATCH categories/:id
      *
@@ -122,7 +111,10 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {}
+    async update({ params, request, response }) {
+        const data = request.all()
+        return response.send(data)
+    }
 
     /**
      * Delete a category with id.
