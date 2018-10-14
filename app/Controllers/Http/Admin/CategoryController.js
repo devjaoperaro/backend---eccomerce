@@ -7,7 +7,7 @@
 const Category = use('App/Models/Category')
 const Image = use('App/Models/Image')
 const Helpers = use('Helpers')
-const { str_random } = use('App/Helpers')
+const { manage_upload } = use('App/Helpers')
 const Database = use('Database')
 /**
  * Resourceful controller for interacting with categories
@@ -36,8 +36,8 @@ class CategoryController {
      * @param {Response} ctx.response
      */
     async store({ request, response }) {
+        const transaction = await Database.beginTransaction()
         try {
-            const transaction = await Database.beginTransaction()
             const { title, description } = request.all()
 
             // Tratamento da imagem
@@ -46,21 +46,7 @@ class CategoryController {
                 size: '2mb'
             })
 
-            // gera um nome aleatório
-            const random_name = await str_random(30)
-            let filename = `${new Date().getTime()}_${random_name}.${
-                image.subtype
-            }`
-
-            // renomeia o arquivo e move para a pasta public/uploads
-            await image.move(Helpers.publicPath('uploads'), {
-                name: filename
-            })
-
-            // verifica se foi movido e retorna o erro
-            if (!image.moved()) {
-                throw image.error()
-            }
+            let filename = await manage_upload(image)
 
             const category_image = await Image.create(
                 {
@@ -101,7 +87,10 @@ class CategoryController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, view }) {}
+    async show({ params, request, response, view }) {
+        const category = await Category.findOrFail(params.id)
+        return response.send(category)
+    }
 
     /**
      * Update category details.
@@ -112,8 +101,43 @@ class CategoryController {
      * @param {Response} ctx.response
      */
     async update({ params, request, response }) {
-        const data = request.all()
-        return response.send(data)
+        const transaction = await Database.beginTransaction()
+        try {
+            const category = await Category.findOrFail(params.id)
+            category.merge(request.all())
+
+            // Tratamento da imagem
+            const image = request.file('image', {
+                types: ['image'],
+                size: '2mb'
+            })
+
+            if (image) {
+                let filename = await manage_upload(image)
+
+                const category_image = await Image.create(
+                    {
+                        path: filename,
+                        size: image.size,
+                        original_name: image.clientName,
+                        extension: image.subtype
+                    },
+                    transaction
+                )
+
+                category.image_id = category_image.id
+            }
+
+            await category.save(transaction)
+            await transaction.commit()
+            return response.send(category)
+        } catch (e) {
+            await transaction.rollback()
+            return response.status(400).send({
+                message: 'Erro ao processar sua requisição!',
+                error: e.message
+            })
+        }
     }
 
     /**
@@ -124,7 +148,14 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {}
+    async destroy({ params, request, response }) {
+        const category = await Category.find(params.id)
+        category.delete()
+        return response.send({
+            status: 'sucesso',
+            message: 'Categoria deletada com sucesso'
+        })
+    }
 }
 
 module.exports = CategoryController
