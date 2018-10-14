@@ -20,17 +20,6 @@ class CouponController {
     async index({ request, response, view }) {}
 
     /**
-     * Render a form to be used for creating a new coupon.
-     * GET coupons/create
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-    async create({ request, response, view }) {}
-
-    /**
      * Create/save a new coupon.
      * POST coupons
      *
