@@ -13,6 +13,7 @@
 /** @type {import('@adonisjs/lucid/src/Factory')} */
 const Factory = use('Factory')
 const Role = use('Role')
+const User = use('App/Models/User')
 
 class ClientSeeder {
     async run() {
@@ -28,6 +29,14 @@ class ClientSeeder {
                 await client.coupons().attach([coupon.id])
             })
         )
+        const user = await User.create({
+            name: 'Thauan',
+            surname: 'Santos',
+            email: 'thauan@fsocietybrasil.org',
+            password: 'secret'
+        })
+        const adminRole = await Role.findBy('slug', 'admin')
+        await user.roles().attach([adminRole.id])
     }
 }
 
