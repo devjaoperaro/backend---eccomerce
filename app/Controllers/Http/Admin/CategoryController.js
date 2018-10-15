@@ -6,8 +6,7 @@
 
 const Category = use('App/Models/Category')
 const Image = use('App/Models/Image')
-const Helpers = use('Helpers')
-const { manage_upload } = use('App/Helpers')
+const { manage_single_upload } = use('App/Helpers')
 const Database = use('Database')
 /**
  * Resourceful controller for interacting with categories
@@ -40,32 +39,34 @@ class CategoryController {
         try {
             const { title, description } = request.all()
 
+            const category = new Category()
+            category.title = title
+            category.description = description
+
             // Tratamento da imagem
             const image = request.file('image', {
                 types: ['image'],
                 size: '2mb'
             })
 
-            let filename = await manage_upload(image)
+            let file = {}
+            if (image) {
+                file = await manage_single_upload(image)
+                if (file.moved()) {
+                    const category_image = await Image.create(
+                        {
+                            path: file.fileName,
+                            size: file.size,
+                            original_name: file.clientName,
+                            extension: file.subtype
+                        },
+                        transaction
+                    )
+                    category.image_id = category_image.id
+                }
+            }
 
-            const category_image = await Image.create(
-                {
-                    path: filename,
-                    size: image.size,
-                    original_name: image.clientName,
-                    extension: image.subtype
-                },
-                transaction
-            )
-
-            const category = await Category.create(
-                {
-                    title,
-                    description,
-                    image_id: category_image.id
-                },
-                transaction
-            )
+            await category.save(transaction)
             await transaction.commit()
 
             return response.status(201).send(category)
@@ -113,19 +114,19 @@ class CategoryController {
             })
 
             if (image) {
-                let filename = await manage_upload(image)
-
-                const category_image = await Image.create(
-                    {
-                        path: filename,
-                        size: image.size,
-                        original_name: image.clientName,
-                        extension: image.subtype
-                    },
-                    transaction
-                )
-
-                category.image_id = category_image.id
+                let file = await manage_single_upload(image)
+                if (file.moved()) {
+                    const category_image = await Image.create(
+                        {
+                            path: file.fileName,
+                            size: file.size,
+                            original_name: file.clientName,
+                            extension: file.subtype
+                        },
+                        transaction
+                    )
+                    category.image_id = category_image.id
+                }
             }
 
             await category.save(transaction)
