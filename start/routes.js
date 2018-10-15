@@ -55,6 +55,7 @@ Route.group(() => {
     Route.resource('product', 'ProductController').apiOnly()
     Route.resource('coupon', 'CouponController').apiOnly()
     Route.resource('order', 'OrderController').apiOnly()
+    Route.post('images/bulkUpload', 'ImageController.bulkUpload')
 })
     .prefix('v1/admin')
     .namespace('Admin')
