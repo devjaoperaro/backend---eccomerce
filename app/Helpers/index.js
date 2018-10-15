@@ -27,6 +27,11 @@ const str_random = async (length = 40) => {
     return string
 }
 
+/**
+ * Move a given file for the spcified path, if none is specified, move file to 'public/uploads' path.
+ * @param {FileJar} file
+ * @param {string} path
+ */
 const manage_single_upload = async (file, path = null) => {
     path = path ? path : Helpers.publicPath('uploads')
     // gera um nome aleatório
@@ -41,6 +46,12 @@ const manage_single_upload = async (file, path = null) => {
     return file
 }
 
+/**
+ * Move a given file list for the spcified path, if none is specified, move files to 'public/uploads' path.
+ * @param {Filejar} fileJar
+ * @param {string} path
+ * @return { object }
+ */
 const manage_multiple_uploads = async (fileJar, path = null) => {
     path = path ? path : Helpers.publicPath('uploads')
     let successes = []
