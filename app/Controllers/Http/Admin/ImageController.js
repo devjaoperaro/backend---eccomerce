@@ -2,6 +2,8 @@
 
 const { manage_multiple_uploads } = use('App/Helpers')
 const Image = use('App/Models/Image')
+const fs = use('fs') // require('fs')
+const Helpers = use('Helpers')
 
 class ImageController {
     async bulkUpload({ request, response }) {
@@ -73,8 +75,15 @@ class ImageController {
     }
 
     async destroy({ request, response, params }) {
+        const image = await Image.findOrFail(params.id)
+
         try {
-            const image = await Image.findOrFail(params.id)
+            let filePath = Helpers.publicPath(`uploads/${image.path}`)
+
+            await fs.unlink(filePath, err => {
+                if (err) throw err
+            })
+
             await image.delete()
             return response
                 .status(410)
