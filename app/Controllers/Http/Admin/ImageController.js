@@ -70,7 +70,7 @@ class ImageController {
     }
 
     async show({ request, response, params }) {
-        const image = await Image.find(params.id)
+        const image = await Image.findOrFail(params.id)
         return response.send(image)
     }
 
