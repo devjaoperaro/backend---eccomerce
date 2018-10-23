@@ -8,6 +8,7 @@ const Category = use('App/Models/Category')
 const Image = use('App/Models/Image')
 const { manage_single_upload } = use('App/Helpers')
 const Database = use('Database')
+const Transformer = use('App/Transformers/Category/CategoriesTransformer')
 /**
  * Resourceful controller for interacting with categories
  */
@@ -20,10 +21,11 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      * @param {View} ctx.view
+     * @param { transform } ctx.transform
      */
-    async index({ request, response, view }) {
+    async index({ request, response, view, transform }) {
         const categories = await Category.query().paginate()
-        return response.send(categories)
+        return response.send(await transform.paginate(categories, Transformer))
     }
 
     /**
