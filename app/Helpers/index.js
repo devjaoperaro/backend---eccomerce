@@ -27,25 +27,33 @@ const str_random = async (length = 40) => {
     return string
 }
 
-const manage_upload = async file => {
+/**
+ * Move a given file for the spcified path, if none is specified, move file to 'public/uploads' path.
+ * @param {FileJar} file
+ * @param {string} path
+ */
+const manage_single_upload = async (file, path = null) => {
+    path = path ? path : Helpers.publicPath('uploads')
     // gera um nome aleatório
     const random_name = await str_random(30)
     let filename = `${new Date().getTime()}-${random_name}.${file.subtype}`
 
     // renomeia o arquivo e move para a pasta public/uploads
-    await file.move(Helpers.publicPath('uploads'), {
+    await file.move(path, {
         name: filename
     })
 
-    // verifica se foi movido e retorna o erro
-    if (!file.moved()) {
-        throw file.error()
-    }
-
-    return filename
+    return file
 }
 
-const manage_multiple_uploads = async fileJar => {
+/**
+ * Move a given file list for the spcified path, if none is specified, move files to 'public/uploads' path.
+ * @param {Filejar} fileJar
+ * @param {string} path
+ * @return { object }
+ */
+const manage_multiple_uploads = async (fileJar, path = null) => {
+    path = path ? path : Helpers.publicPath('uploads')
     let successes = []
     let errors = []
 
@@ -55,7 +63,7 @@ const manage_multiple_uploads = async fileJar => {
             let filename = `${new Date().getTime()}-${random_name}.${
                 file.subtype
             }`
-            await file.move(Helpers.publicPath('uploads'), {
+            await file.move(path, {
                 name: filename
             })
 
@@ -71,6 +79,6 @@ const manage_multiple_uploads = async fileJar => {
 
 module.exports = {
     str_random,
-    manage_upload,
+    manage_single_upload,
     manage_multiple_uploads
 }

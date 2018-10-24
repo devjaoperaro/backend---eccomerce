@@ -8,7 +8,7 @@ class Category extends Model {
      * Relacionamento entre Categoria e Imagem
      */
     image() {
-        return this.belongsTo('App/Models/Images')
+        return this.belongsTo('App/Models/Image')
     }
 
     /**

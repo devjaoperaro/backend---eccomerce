@@ -6,9 +6,9 @@
 
 const Category = use('App/Models/Category')
 const Image = use('App/Models/Image')
-const Helpers = use('Helpers')
-const { manage_upload } = use('App/Helpers')
+const { manage_single_upload } = use('App/Helpers')
 const Database = use('Database')
+const Transformer = use('App/Transformers/Category/CategoriesTransformer')
 /**
  * Resourceful controller for interacting with categories
  */
@@ -21,10 +21,11 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      * @param {View} ctx.view
+     * @param { transform } ctx.transform
      */
-    async index({ request, response, view }) {
+    async index({ request, response, view, transform }) {
         const categories = await Category.query().paginate()
-        return response.send(categories)
+        return response.send(await transform.paginate(categories, Transformer))
     }
 
     /**
@@ -35,10 +36,14 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {
+    async store({ request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
             const { title, description } = request.all()
+
+            const category = new Category()
+            category.title = title
+            category.description = description
 
             // Tratamento da imagem
             const image = request.file('image', {
@@ -46,29 +51,29 @@ class CategoryController {
                 size: '2mb'
             })
 
-            let filename = await manage_upload(image)
+            let file = {}
+            if (image) {
+                file = await manage_single_upload(image)
+                if (file.moved()) {
+                    const category_image = await Image.create(
+                        {
+                            path: file.fileName,
+                            size: file.size,
+                            original_name: file.clientName,
+                            extension: file.subtype
+                        },
+                        transaction
+                    )
+                    category.image_id = category_image.id
+                }
+            }
 
-            const category_image = await Image.create(
-                {
-                    path: filename,
-                    size: image.size,
-                    original_name: image.clientName,
-                    extension: image.subtype
-                },
-                transaction
-            )
-
-            const category = await Category.create(
-                {
-                    title,
-                    description,
-                    image_id: category_image.id
-                },
-                transaction
-            )
+            await category.save(transaction)
             await transaction.commit()
 
-            return response.status(201).send(category)
+            return response
+                .status(201)
+                .send(await transform.item(category, Transformer))
         } catch (e) {
             await transaction.rollback()
             return response.status(400).send({
@@ -87,9 +92,9 @@ class CategoryController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, view }) {
+    async show({ params, request, response, transform }) {
         const category = await Category.findOrFail(params.id)
-        return response.send(category)
+        return response.send(await transform.item(category, Transformer))
     }
 
     /**
@@ -100,7 +105,7 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {
+    async update({ params, request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
             const category = await Category.findOrFail(params.id)
@@ -113,24 +118,24 @@ class CategoryController {
             })
 
             if (image) {
-                let filename = await manage_upload(image)
-
-                const category_image = await Image.create(
-                    {
-                        path: filename,
-                        size: image.size,
-                        original_name: image.clientName,
-                        extension: image.subtype
-                    },
-                    transaction
-                )
-
-                category.image_id = category_image.id
+                let file = await manage_single_upload(image)
+                if (file.moved()) {
+                    const category_image = await Image.create(
+                        {
+                            path: file.fileName,
+                            size: file.size,
+                            original_name: file.clientName,
+                            extension: file.subtype
+                        },
+                        transaction
+                    )
+                    category.image_id = category_image.id
+                }
             }
 
             await category.save(transaction)
             await transaction.commit()
-            return response.send(category)
+            return response.send(await transform.item(category, Transformer))
         } catch (e) {
             await transaction.rollback()
             return response.status(400).send({
