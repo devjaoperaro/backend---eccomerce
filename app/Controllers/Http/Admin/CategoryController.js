@@ -36,7 +36,7 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {
+    async store({ request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
             const { title, description } = request.all()
@@ -71,7 +71,9 @@ class CategoryController {
             await category.save(transaction)
             await transaction.commit()
 
-            return response.status(201).send(category)
+            return response
+                .status(201)
+                .send(await transform.item(category, Transformer))
         } catch (e) {
             await transaction.rollback()
             return response.status(400).send({
@@ -90,9 +92,9 @@ class CategoryController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, view }) {
+    async show({ params, request, response, transform }) {
         const category = await Category.findOrFail(params.id)
-        return response.send(category)
+        return response.send(await transform.item(category, Transformer))
     }
 
     /**
@@ -103,7 +105,7 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {
+    async update({ params, request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
             const category = await Category.findOrFail(params.id)
@@ -133,7 +135,7 @@ class CategoryController {
 
             await category.save(transaction)
             await transaction.commit()
-            return response.send(category)
+            return response.send(await transform.item(category, Transformer))
         } catch (e) {
             await transaction.rollback()
             return response.status(400).send({
