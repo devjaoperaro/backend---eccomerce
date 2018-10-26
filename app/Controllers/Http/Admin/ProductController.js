@@ -58,7 +58,10 @@ class ProductController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, view }) {}
+    async show({ params, transform }) {
+        const product = await Product.findOrFail(params.id)
+        return transform.item(product, Transformer)
+    }
 
     /**
      * Update product details.
@@ -68,7 +71,22 @@ class ProductController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {}
+    async update({ params, request, transform, response }) {
+        const transaction = await Database.beginTransaction()
+        const product = await Product.findOrFail(params.id)
+        try {
+            const data = request.only(['name', 'description', 'price'])
+            const { images } = request.only(['images'])
+            product.merge(data)
+            await product.save(transaction)
+            await product.images().sync(images, null, transaction)
+            await transaction.commit()
+            return transform.item(product, Transformer)
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(error.status).send(error)
+        }
+    }
 
     /**
      * Delete a product with id.
@@ -78,7 +96,19 @@ class ProductController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {}
+    async destroy({ params, response }) {
+        const transaction = await Database.beginTransaction()
+        const product = await Product.findOrFail(params.id)
+        try {
+            await product.images().detach(null, transaction)
+            await product.delete(transaction)
+            await transaction.commit()
+            return response.send({ message: 'Produto deletado com sucesso' })
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(error.status).send(error)
+        }
+    }
 }
 
 module.exports = ProductController
