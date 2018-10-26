@@ -5,6 +5,7 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const Product = use('App/Models/Product')
 const Transformer = use('App/Transformers/Product/ProductTransformer')
+const Database = use('Database')
 /**
  * Resourceful controller for interacting with products
  */
@@ -24,17 +25,6 @@ class ProductController {
     }
 
     /**
-     * Render a form to be used for creating a new product.
-     * GET products/create
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-    async create({ request, response, view }) {}
-
-    /**
      * Create/save a new product.
      * POST products
      *
@@ -42,7 +32,22 @@ class ProductController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {}
+    async store({ request, response, transform }) {
+        const transaction = await Database.beginTransaction()
+        try {
+            let product = request.only(['name', 'description', 'price'])
+            const { images } = request.only(['images'])
+            product = await Product.create(product, transaction)
+            await product.images().attach(images, null, transaction)
+            await transaction.commit()
+            return response
+                .status(201)
+                .send(await transform.item(product, Transformer))
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(error.status).send(error)
+        }
+    }
 
     /**
      * Display a single product.
@@ -54,17 +59,6 @@ class ProductController {
      * @param {View} ctx.view
      */
     async show({ params, request, response, view }) {}
-
-    /**
-     * Render a form to update an existing product.
-     * GET products/:id/edit
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-    async edit({ params, request, response, view }) {}
 
     /**
      * Update product details.
