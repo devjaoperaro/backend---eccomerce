@@ -1,9 +1,7 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
-
+const Coupon = use('App/Models/Coupon')
+const Transformer = use('App/Transformers/Coupon/CouponTransformer')
 /**
  * Resourceful controller for interacting with coupons
  */
@@ -17,7 +15,10 @@ class CouponController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ request, response, view }) {}
+    async index({ request, response, transform }) {
+        const coupons = await Coupon.query().paginate()
+        return transform.paginate(coupons, Transformer)
+    }
 
     /**
      * Create/save a new coupon.
@@ -38,18 +39,10 @@ class CouponController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, view }) {}
-
-    /**
-     * Render a form to update an existing coupon.
-     * GET coupons/:id/edit
-     *
-     * @param {object} ctx
-     * @param {Request} ctx.request
-     * @param {Response} ctx.response
-     * @param {View} ctx.view
-     */
-    async edit({ params, request, response, view }) {}
+    async show({ params, request, transform }) {
+        const coupon = await Coupon.findOrFail(params.id)
+        return transform.item(coupon, Transformer)
+    }
 
     /**
      * Update coupon details.
@@ -69,7 +62,21 @@ class CouponController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {}
+    async destroy({ params, request, response }) {
+        const transaction = await Database.beginTransaction()
+        const coupon = Coupon.findOrFail(params.id)
+        try {
+            await coupon.products().detach(null, transaction)
+            await coupon.orders().detach(null, transaction)
+            await coupon.users().detach(null, transaction)
+            await coupon.delete(transaction)
+            await transaction.commit()
+            return response.send({ message: 'Cupom deletado com sucesso!' })
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(error.status).send(error)
+        }
+    }
 }
 
 module.exports = CouponController
