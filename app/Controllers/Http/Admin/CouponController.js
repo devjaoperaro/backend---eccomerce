@@ -30,7 +30,7 @@ class CouponController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {
+    async store({ request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
             const data = request.only([
@@ -58,9 +58,13 @@ class CouponController {
 
             await transaction.commit()
 
-            await coupon.loadMany(['users', 'orders', 'products'])
-
-            return response.status(201).send(coupon)
+            return response
+                .status(201)
+                .send(
+                    await transform
+                        .include('users,products,orders')
+                        .item(coupon, Transformer)
+                )
         } catch (error) {
             await transaction.rollback()
             return response.status(400).send({ message: error.message })
@@ -78,7 +82,9 @@ class CouponController {
      */
     async show({ params, request, transform }) {
         const coupon = await Coupon.findOrFail(params.id)
-        return transform.item(coupon, Transformer)
+        return transform
+            .include('products,users,orders')
+            .item(coupon, Transformer)
     }
 
     /**
@@ -89,7 +95,7 @@ class CouponController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {
+    async update({ params, request, response, transform }) {
         const transaction = await Database.beginTransaction()
         let coupon = await Coupon.findOrFail(params.id)
         try {
@@ -119,9 +125,12 @@ class CouponController {
             orders ? await service.syncOrders(orders) : false
 
             await transaction.commit()
-            await coupon.loadMany(['users', 'orders', 'products'])
 
-            return response.send(coupon)
+            return response.send(
+                await transform
+                    .include('products,orders,users')
+                    .item(coupon, Transformer)
+            )
         } catch (error) {
             await transaction.rollback()
             return response.status(400).send({ message: error.message })
