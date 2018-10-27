@@ -52,9 +52,9 @@ class CouponController {
             const coupon = await Coupon.create(data)
             const service = new Service(coupon, transaction)
             // insere os relacionamentos no DB
-            users ? await service.attachUsers(users) : false
-            products ? await service.attachProducts(products) : false
-            orders ? await service.attachOrders(orders) : false
+            users ? await service.syncUsers(users) : false
+            products ? await service.syncProducts(products) : false
+            orders ? await service.syncOrders(orders) : false
 
             await transaction.commit()
 
@@ -89,7 +89,44 @@ class CouponController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {}
+    async update({ params, request, response }) {
+        const transaction = await Database.beginTransaction()
+        let coupon = await Coupon.findOrFail(params.id)
+        try {
+            const data = request.only([
+                'code',
+                'discount',
+                'valid_from',
+                'valid_until',
+                'quantity',
+                'type',
+                'recursive'
+            ])
+
+            coupon.merge(data)
+
+            await coupon.save(transaction)
+
+            const { users, products, orders } = request.only([
+                'users',
+                'products',
+                'orders'
+            ])
+
+            const service = new Service(coupon, transaction)
+            users ? await service.syncUsers(users) : false
+            products ? await service.syncProducts(products) : false
+            orders ? await service.syncOrders(orders) : false
+
+            await transaction.commit()
+            await coupon.loadMany(['users', 'orders', 'products'])
+
+            return response.send(coupon)
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(400).send({ message: error.message })
+        }
+    }
 
     /**
      * Delete a coupon with id.
