@@ -2,6 +2,8 @@
 
 const Coupon = use('App/Models/Coupon')
 const Transformer = use('App/Transformers/Coupon/CouponTransformer')
+const Database = use('Database')
+const Service = use('App/Services/Coupon/CouponService')
 /**
  * Resourceful controller for interacting with coupons
  */
@@ -28,7 +30,42 @@ class CouponController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {}
+    async store({ request, response }) {
+        const transaction = await Database.beginTransaction()
+        try {
+            const data = request.only([
+                'code',
+                'discount',
+                'valid_from',
+                'valid_until',
+                'quantity',
+                'type',
+                'recursive'
+            ])
+
+            const { users, products, orders } = request.only([
+                'users',
+                'products',
+                'orders'
+            ])
+
+            const coupon = await Coupon.create(data)
+            const service = new Service(coupon, transaction)
+            // insere os relacionamentos no DB
+            users ? await service.attachUsers(users) : false
+            products ? await service.attachProducts(products) : false
+            orders ? await service.attachOrders(orders) : false
+
+            await transaction.commit()
+
+            await coupon.loadMany(['users', 'orders', 'products'])
+
+            return response.status(201).send(coupon)
+        } catch (error) {
+            await transaction.rollback()
+            return response.status(400).send({ message: error.message })
+        }
+    }
 
     /**
      * Display a single coupon.
