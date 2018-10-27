@@ -59,6 +59,8 @@ Route.group(() => {
     Route.post('image/bulkUpload', 'ImageController.bulkUpload').as(
         'image.bulkUpload'
     )
+
+    Route.resource('user', 'UserController').apiOnly()
 })
     .prefix('v1/admin')
     .namespace('Admin')
