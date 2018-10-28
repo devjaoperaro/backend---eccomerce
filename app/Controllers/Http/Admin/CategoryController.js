@@ -23,8 +23,11 @@ class CategoryController {
      * @param {View} ctx.view
      * @param { transform } ctx.transform
      */
-    async index({ request, response, view, transform }) {
-        const categories = await Category.query().paginate()
+    async index({ response, transform, pagination }) {
+        const categories = await Category.query().paginate(
+            pagination.page,
+            pagination.perpage
+        )
         return response.send(await transform.paginate(categories, Transformer))
     }
 
@@ -92,7 +95,7 @@ class CategoryController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, transform }) {
+    async show({ params, response, transform }) {
         const category = await Category.findOrFail(params.id)
         return response.send(await transform.item(category, Transformer))
     }
@@ -153,7 +156,7 @@ class CategoryController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {
+    async destroy({ params, response }) {
         const category = await Category.find(params.id)
         category.delete()
         return response.send({

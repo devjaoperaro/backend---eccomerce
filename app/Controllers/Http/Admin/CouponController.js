@@ -17,8 +17,11 @@ class CouponController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ request, response, transform }) {
-        const coupons = await Coupon.query().paginate()
+    async index({ request, response, transform, pagination }) {
+        const coupons = await Coupon.query().paginate(
+            pagination.page,
+            pagination.perpage
+        )
         return transform.paginate(coupons, Transformer)
     }
 

@@ -15,8 +15,11 @@ class UserController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ request, response, transform }) {
-        const users = await User.query().paginate()
+    async index({ transform, pagination }) {
+        const users = await User.query().paginate(
+            pagination.page,
+            pagination.perpage
+        )
         return transform.paginate(users, UserTransformer)
     }
 

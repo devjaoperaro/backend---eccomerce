@@ -16,8 +16,11 @@ class ProductController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ request, response, view, transform }) {
-        const products = await Product.query().paginate()
+    async index({ request, response, view, transform, pagination }) {
+        const products = await Product.query().paginate(
+            pagination.page,
+            pagination.perpage
+        )
         return response.send(await transform.paginate(products, Transformer))
     }
 
