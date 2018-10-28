@@ -56,7 +56,10 @@ class UserController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async show({ params, request, response, view }) {}
+    async show({ params, request, transform }) {
+        const user = await User.findOrFail(params.id)
+        return transform.item(user, UserTransformer)
+    }
 
     /**
      * Update user details.
@@ -66,7 +69,20 @@ class UserController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {}
+    async update({ params, request, transform }) {
+        const user = await User.findOrFail(params.id)
+        const data = request.only([
+            'name',
+            'surname',
+            'email',
+            'password',
+            'image_id'
+        ])
+
+        user.merge(data)
+        await user.save()
+        return transform.item(user, UserTransformer)
+    }
 
     /**
      * Delete a user with id.
@@ -76,7 +92,11 @@ class UserController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {}
+    async destroy({ params, request, response }) {
+        const user = await User.findOrFail(params.id)
+        await user.delete()
+        return response.message({ message: 'Usuário deletado com sucesso!' })
+    }
 }
 
 module.exports = UserController

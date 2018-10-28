@@ -2,8 +2,15 @@
 
 class UserStoreUser {
     get rules() {
+        let userId = this.ctx.params.id
+        let rule = ''
+        if (userId) {
+            rule = `unique:users,email,id,${userId}`
+        } else {
+            rule = `unique:users,email|required`
+        }
         return {
-            email: 'unique:users,email|required',
+            email: rule,
             image_id: 'exists:images,id'
         }
     }
