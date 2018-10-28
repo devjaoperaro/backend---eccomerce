@@ -31,7 +31,21 @@ class UserController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {}
+    async store({ request, response, transform }) {
+        const data = request.only([
+            'name',
+            'surname',
+            'email',
+            'password',
+            'image_id'
+        ])
+
+        const user = await User.create(data)
+
+        return response
+            .status(201)
+            .send(await transform.item(user, UserTransformer))
+    }
 
     /**
      * Display a single user.

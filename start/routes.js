@@ -60,7 +60,9 @@ Route.group(() => {
         'image.bulkUpload'
     )
 
-    Route.resource('user', 'UserController').apiOnly()
+    Route.resource('user', 'UserController')
+        .apiOnly()
+        .validator(new Map([[['user.store'], ['User/StoreUser']]]))
 })
     .prefix('v1/admin')
     .namespace('Admin')
