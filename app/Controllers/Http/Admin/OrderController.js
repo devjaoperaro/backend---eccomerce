@@ -49,7 +49,6 @@ class OrderController {
      */
     async show({ params, transform, response }) {
         const order = await Order.findOrFail(params.id)
-
         return response.send(await transform.item(order, OrderTransformer))
     }
 
