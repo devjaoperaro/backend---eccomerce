@@ -10,6 +10,7 @@ class CouponOrderSchema extends Schema {
 
             table.integer('coupon_id').unsigned()
             table.integer('order_id').unsigned()
+            table.float('discount', 12, 2).defaultTo(0.0)
 
             // FKs
             table

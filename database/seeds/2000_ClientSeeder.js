@@ -23,10 +23,10 @@ class ClientSeeder {
             clients.map(async client => {
                 // Associa os usuários aos cargos
                 await client.roles().attach([role.id])
-                // Associa os usuários aos cupons
-                const coupon = await Factory.model('App/Models/Coupon').create()
+                // // Associa os usuários aos cupons
+                // const coupon = await Factory.model('App/Models/Coupon').create()
 
-                await client.coupons().attach([coupon.id])
+                // await client.coupons().attach([coupon.id])
             })
         )
         const user = await User.create({

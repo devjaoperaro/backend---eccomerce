@@ -11,6 +11,10 @@ class Coupon extends Model {
     products() {
         return this.belongsToMany('App/Models/Product')
     }
+
+    orders() {
+        return this.belongsToMany('App/Models/Order')
+    }
 }
 
 module.exports = Coupon

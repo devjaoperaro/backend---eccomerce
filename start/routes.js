@@ -16,10 +16,6 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-Route.get('/', () => {
-    return { greeting: 'Hello world in JSON' }
-})
-
 // Authentication Routes
 Route.group(() => {
     Route.post('/register', 'AuthController.register')
@@ -59,6 +55,15 @@ Route.group(() => {
     Route.post('image/bulkUpload', 'ImageController.bulkUpload').as(
         'image.bulkUpload'
     )
+
+    Route.resource('user', 'UserController')
+        .apiOnly()
+        .validator(
+            new Map([
+                [['user.store'], ['User/StoreUser']],
+                [['user.update'], ['User/StoreUser']]
+            ])
+        )
 })
     .prefix('v1/admin')
     .namespace('Admin')

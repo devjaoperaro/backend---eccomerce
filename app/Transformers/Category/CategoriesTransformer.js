@@ -1,7 +1,7 @@
 'use strict'
 
 const TransformerAbstract = use('Adonis/Addons/Bumblebee/TransformerAbstract')
-const ImageTransformer = use('App/Transformers/Category/ImageTransformer')
+const ImageTransformer = use('App/Transformers/Image/SimpleImageTransformer')
 /**
  * CategoriesTransformer class
  *
