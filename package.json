@@ -1,8 +1,8 @@
 {
-    "name": "adonis-api-app",
+    "name": "adonis-ecommerce-realtime",
     "version": "4.1.0",
     "adonis-version": "4.1.0",
-    "description": "Adonisjs boilerplate for API server with pre-configured JWT",
+    "description": "Adonis API Server for E-commerce realtime application",
     "main": "index.js",
     "scripts": {
         "start": "node server.js",
@@ -13,8 +13,8 @@
         "adonisjs",
         "adonis-app"
     ],
-    "author": "",
-    "license": "UNLICENSED",
+    "author": "Thauan Santos",
+    "license": "MIT",
     "private": true,
     "dependencies": {
         "@adonisjs/ace": "^5.0.8",
