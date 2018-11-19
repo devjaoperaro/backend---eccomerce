@@ -16,18 +16,16 @@ const User = use('App/Models/User')
 
 class CartSeeder {
     async run() {
-        const clients = await User.query()
-            .whereHas('roles', builder => builder.where('slug', 'client'))
-            .fetch()
-
-        await Promise.all(
-            clients.rows.map(async client => {
-                const cart = await Factory.model('App/Models/Cart').make()
-                await client.carts().save(cart)
-            })
-        )
-
-        await Factory.model('App/Models/CartItem').createMany(30)
+        // const clients = await User.query()
+        //     .whereHas('roles', builder => builder.where('slug', 'client'))
+        //     .fetch()
+        // await Promise.all(
+        //     clients.rows.map(async client => {
+        //         const cart = await Factory.model('App/Models/Cart').make()
+        //         await client.carts().save(cart)
+        //     })
+        // )
+        // await Factory.model('App/Models/CartItem').createMany(30)
     }
 }
 
