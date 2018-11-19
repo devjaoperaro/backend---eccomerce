@@ -39,7 +39,7 @@ Para executar esta aplicação em modo desenvolvimento você precisa ter o pacot
 Saída do terminal:
 
 ```bash
-> adonis-ecommerce-realtime@4.1.0 start /Users/tcicero/Desktop/projetos/ecommerce
+> adonis-ecommerce-realtime@4.1.0 start /path/to/ecommerce-realtime
 > node server.js
 > info: serving app on http://127.0.0.1:3333
 ```
