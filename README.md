@@ -1,27 +1,54 @@
-# Adonis API application
+# Ecommerce Real Time Com Adonis, Node.js e MySQL - Udemy 2018
 
-This is the boilerplate for creating an API server in AdonisJs, it comes pre-configured with.
+![E-Commerce Real Time Com Adonis, Node.js e MySQL](thumbnail.jpg)
+
+Esta aplicação está em desenvolvimento, caso tenha interesse em saber como ela foi criada acesse: [https://www.udemy.com/e-commerce-em-tempo-real-com-nodejs-adonis-e-websocket/](https://www.udemy.com/e-commerce-em-tempo-real-com-nodejs-adonis-e-websocket/)
+
+## Pacotes inclusos
 
 1. Bodyparser
 2. Authentication
 3. CORS
 4. Lucid ORM
 5. Migrations and seeds
+6. Adonis Bumblebee
+7. Adonis ACL
+8. Adonis Validator
+9. MYSQL
 
 ## Setup
 
-Use the adonis command to install the blueprint
+Para executar esta aplicação em modo desenvolvimento você precisa ter o pacote `@adonijs/cli` instalado em sua máquina.
+
+> Development
 
 ```bash
-adonis new yardstick --api-only
+    git clone git@github.com:NeroOficial/ecommerce-realtime.git
+    cd ecommerce-realtime
+    npm install
+    adonis serve --dev
 ```
 
-or manually clone the repo and then run `npm install`.
+> Production
 
+```bash
+    git clone git@github.com:NeroOficial/ecommerce-realtime.git
+    cd ecommerce-realtime
+    npm install
+    npm start
+```
+
+Saída do terminal:
+
+```bash
+> adonis-ecommerce-realtime@4.1.0 start /path/to/ecommerce-realtime
+> node server.js
+> info: serving app on http://127.0.0.1:3333
+```
 
 ### Migrations
 
-Run the following command to run startup migrations.
+Execute o seguinte comando para executar as migrations:
 
 ```js
 adonis migration:run
