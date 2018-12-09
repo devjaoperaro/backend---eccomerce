@@ -7,4 +7,11 @@ OrderHook.updateValues = async modelInstance => {
     modelInstance.qty_items = await modelInstance.items().getSum('quantity')
     modelInstance.discount = await modelInstance.coupons().getSum('discount')
     modelInstance.total = modelInstance.subtotal - modelInstance.discount
+    return modelInstance
+}
+
+OrderHook.updateCollectionValues = async models => {
+    for (let model of models) {
+        model = await OrderHook.updateValues(model)
+    }
 }
