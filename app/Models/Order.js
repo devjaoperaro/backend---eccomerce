@@ -8,7 +8,6 @@ class Order extends Model {
         super.boot()
 
         this.addHook('afterFind', 'OrderHook.updateValues')
-        this.addHook('beforeSave', 'OrderHook.updateValues')
     }
 
     /**
