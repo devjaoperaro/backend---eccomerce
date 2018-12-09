@@ -18,7 +18,7 @@ class OrderService {
             .fetch()
 
         currentItems.rows.map(async item => {
-            item.fills(items.filter(n => n.id === item.id)[0])
+            item.fill(items.filter(n => n.id === item.id)[0])
             await item.save(this.trx)
         })
     }
