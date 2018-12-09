@@ -5,6 +5,8 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const OrderTransformer = use('App/Transformers/Order/OrderTransformer')
 const Order = use('App/Models/Order')
+const Database = use('Database')
+const OrderService = use('App/Services/Orders/OrderService')
 
 /**
  * Resourceful controller for interacting with orders
@@ -24,7 +26,6 @@ class OrderController {
             pagination.page,
             pagination.perpage
         )
-
         return response.send(await transform.paginate(orders, OrderTransformer))
     }
 
@@ -36,7 +37,25 @@ class OrderController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {}
+    async store({ request, response, transform }) {
+        const trx = await Database.beginTransaction()
+        try {
+            const { user_id, items } = request.all()
+            const order = await Order.create({ user_id }, trx)
+            const service = new OrderService(order, trx)
+            if (items) {
+                await service.syncItems(items)
+            }
+            await trx.commit()
+            let _order = await transform.item(order, OrderTransformer)
+            return response.status(201).send({ order: _order })
+        } catch (error) {
+            await trx.rollback()
+            return response.status(400).send({
+                message: 'Não foi possível criar seu pedido no momento!'
+            })
+        }
+    }
 
     /**
      * Display a single order.
