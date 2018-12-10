@@ -16,7 +16,9 @@
 /** @type {typeof import('@adonisjs/framework/src/Route/Manager')} */
 const Route = use('Route')
 
-// Authentication Routes
+/**
+ * Auth Routes used for admins and users
+ */
 Route.group(() => {
     Route.post('/register', 'AuthController.register')
         .as('auth.register')
@@ -38,8 +40,15 @@ Route.group(() => {
     .prefix('v1/auth')
     .namespace('Auth')
 
-// Administration Routes
+/**
+ * Administration Routes V1
+ *
+ * Prefix: /v1/admin
+ */
 Route.group(() => {
+    /**
+     * Categories resource Routes
+     */
     Route.resource('category', 'CategoryController')
         .apiOnly()
         .validator(
@@ -48,16 +57,35 @@ Route.group(() => {
                 [['category.update'], ['Category/Update']]
             ])
         )
+
+    /**
+     * Products Resource Routes
+     */
     Route.resource('product', 'ProductController').apiOnly()
+
+    /**
+     * Coupons Resource Routes
+     */
     Route.resource('coupon', 'CouponController').apiOnly()
+
+    /**
+     * Orders Resource Routes
+     */
     Route.resource('order', 'OrderController')
         .apiOnly()
         .validator(new Map([[['order.store'], ['Order/Order']]]))
+
+    /**
+     * Images Resource Routes
+     */
     Route.resource('image', 'ImageController').apiOnly()
     Route.post('image/bulkUpload', 'ImageController.bulkUpload').as(
         'image.bulkUpload'
     )
 
+    /**
+     * Users Resource Rotues
+     */
     Route.resource('user', 'UserController')
         .apiOnly()
         .validator(
