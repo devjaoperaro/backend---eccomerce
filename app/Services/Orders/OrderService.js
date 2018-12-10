@@ -16,11 +16,12 @@ class OrderService {
             .items()
             .whereIn('id', items.map(item => item.id))
             .fetch()
-
-        currentItems.rows.map(async item => {
-            item.fill(items.filter(n => n.id === item.id)[0])
-            await item.save(this.trx)
-        })
+        await Promise.all(
+            currentItems.rows.map(async item => {
+                item.fill(items.filter(n => n.id === item.id)[0])
+                await item.save(this.trx)
+            })
+        )
     }
 }
 

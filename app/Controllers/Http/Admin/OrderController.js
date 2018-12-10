@@ -88,15 +88,13 @@ class OrderController {
             const service = new OrderService(order, trx)
             await service.updateItems(items)
             await order.save(trx)
-            let _order = await transform
-                .include('items')
-                .item(order, OrderTransformer)
             await trx.commit()
-            return response.status(200).send({ order: _order })
+            let _order = await transform.item(order, OrderTransformer)
+            return response.send({ order: _order })
         } catch (error) {
             await trx.rollback()
             return response.status(400).send({
-                message: 'Não foi possível atualizar seu pedido no momento!'
+                message: 'Não foi possível atualizar este pedido!'
             })
         }
     }

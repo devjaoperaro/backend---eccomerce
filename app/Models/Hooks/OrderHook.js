@@ -12,7 +12,8 @@ OrderHook.updateValues = async modelInstance => {
     modelInstance.$sideLoaded.discount = await modelInstance
         .coupons()
         .getSum('discount')
-    modelInstance.total = modelInstance.subtotal - modelInstance.discount
+    modelInstance.total =
+        modelInstance.$sideLoaded.subtotal - modelInstance.$sideLoaded.discount
     return modelInstance
 }
 
