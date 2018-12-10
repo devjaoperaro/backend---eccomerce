@@ -19,6 +19,7 @@ class OrderTransformer extends TransformerAbstract {
      * This method is used to transform the data.
      */
     transform(order) {
+        order = order.toJSON()
         return {
             id: order.id,
             subtotal: order.subtotal,
