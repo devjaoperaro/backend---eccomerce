@@ -107,7 +107,20 @@ class OrderController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {}
+    async destroy({ params, request, response }) {
+        const order = await Order.findOrFail(params.id)
+        const trx = await Database.beginTransaction()
+        try {
+            await order.items().delete(trx)
+            await order.delete(trx)
+            return response.status(204).send()
+        } catch (error) {
+            await trx.rollback()
+            return response.status(400).send({
+                message: 'Erro ao deletar este pedido!'
+            })
+        }
+    }
 }
 
 module.exports = OrderController
