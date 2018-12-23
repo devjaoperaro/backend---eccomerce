@@ -32,12 +32,12 @@ class AuthController {
         }
     }
 
-    async login({ request, response, auth }) {
+    async login({ request, response, auth, transform }) {
         const { email, password } = request.all()
 
-        const user = await auth.withRefreshToken().attempt(email, password)
+        let data = await auth.withRefreshToken().attempt(email, password)
 
-        return response.send({ data: user })
+        return response.send({ data })
     }
 
     async refresh({ request, response, auth }) {
