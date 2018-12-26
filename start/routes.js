@@ -17,6 +17,13 @@
 const Route = use('Route')
 
 /**
+ * Current User
+ */
+Route.get('v1/me', 'UserController.me')
+    .as('me')
+    .middleware('auth')
+
+/**
  * Auth Routes used for admins and users
  */
 Route.group(() => {
