@@ -1,4 +1,4 @@
-# Ecommerce Real Time Com Adonis, Node.js e MySQL - Udemy 2018
+# Ecommerce Real Time Com AdonisJS, Node.JS e MySQL
 
 ![E-Commerce Real Time Com Adonis, Node.js e MySQL](thumbnail.jpg)
 
