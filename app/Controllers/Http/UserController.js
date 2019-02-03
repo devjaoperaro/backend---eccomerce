@@ -5,9 +5,9 @@ const UserTransformer = use('App/Transformers/User/UserTransformer')
 
 class UserController {
     async me({ response, transform, auth }) {
-        let user = await auth.getUser()
-        user = await transform.item(user, UserTransformer)
-        user.roles = await user.getRoles()
+        const user = await auth.getUser()
+        const userData = await transform.item(user, UserTransformer)
+        userData.roles = await user.getRoles()
         return response.send(user)
     }
 }
