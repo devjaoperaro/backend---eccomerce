@@ -8,7 +8,7 @@ class UserController {
         const user = await auth.getUser()
         const userData = await transform.item(user, UserTransformer)
         userData.roles = await user.getRoles()
-        return response.send(user)
+        return response.send(userData)
     }
 }
 
