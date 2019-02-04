@@ -16,8 +16,17 @@ class ProductController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ request, response, view, transform, pagination }) {
-        const products = await Product.query().paginate(
+    async index({ request, response, transform, pagination }) {
+        const { title } = request.only(['title'])
+
+        const query = Product.query()
+
+        // Adiciona o where, caso seja solicitado via url params
+        if (title) {
+            query.where('name', 'LIKE', `%${title}%`)
+        }
+
+        const products = await query.paginate(
             pagination.page,
             pagination.perpage
         )
