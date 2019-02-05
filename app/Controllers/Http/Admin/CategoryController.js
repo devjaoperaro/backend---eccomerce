@@ -112,7 +112,7 @@ class CategoryController {
         const transaction = await Database.beginTransaction()
         try {
             const category = await Category.findOrFail(params.id)
-            category.merge(request.all())
+            category.merge(request.only(['title', 'description', 'image_id']))
 
             // Tratamento da imagem
             const image = request.file('image', {
