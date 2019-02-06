@@ -42,7 +42,7 @@ Route.group(() => {
     Route.post('logout', 'AuthController.logout')
         .as('auth.logout')
         .middleware(['auth'])
-        .validator('Clients/ClientRefreshToken')
+    // .validator('Clients/ClientRefreshToken')
 })
     .prefix('v1/auth')
     .namespace('Auth')

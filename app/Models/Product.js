@@ -4,7 +4,7 @@
 const Model = use('Model')
 
 class Product extends Model {
-    featuredImage() {
+    image() {
         return this.belongsTo('App/Models/Image')
     }
 

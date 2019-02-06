@@ -84,7 +84,12 @@ class ProductController {
         const transaction = await Database.beginTransaction()
         const product = await Product.findOrFail(params.id)
         try {
-            const data = request.only(['name', 'description', 'price'])
+            const data = request.only([
+                'name',
+                'description',
+                'price',
+                'image_id'
+            ])
             const { images } = request.only(['images'])
             product.merge(data)
             await product.save(transaction)

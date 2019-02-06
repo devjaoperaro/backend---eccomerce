@@ -1,6 +1,6 @@
 'use strict'
 
-const { manage_multiple_uploads } = use('App/Helpers')
+const { manage_multiple_uploads, manage_single_upload } = use('App/Helpers')
 const Image = use('App/Models/Image')
 const fs = use('fs') // require('fs')
 const Helpers = use('Helpers')
@@ -44,15 +44,18 @@ class ImageController {
 
     async store({ request, response, transform }) {
         try {
-            // Tratamento da imagem
-            const image = request.file('image', {
+            // captura uma lista de imagens
+            const fileJar = request.file('images', {
                 types: ['image'],
                 size: '2mb'
             })
 
-            let file = {}
-            if (image) {
-                file = await manage_single_upload(image)
+            // retorno da api
+            let images = []
+
+            // caso seja enviado um único arquivo, trata como single file
+            if (!fileJar.files) {
+                const file = await manage_single_upload(fileJar)
                 if (file.moved()) {
                     const imagem = await Image.create({
                         path: file.fileName,
@@ -61,14 +64,38 @@ class ImageController {
                         extension: file.subtype
                     })
 
+                    images.push(imagem)
+                    images = await transform.collection(images, Transformer)
+
                     return response
                         .status(201)
-                        .send(await transform.item(imagem, Transformer))
+                        .send({ success: images, errors: {} })
                 }
+
+                return response.status(500).send({
+                    message: 'Não foi possível processar a sua solicitação!'
+                })
             }
+
+            // caso sejam enviados vários arquivos
+            let files = await manage_multiple_uploads(fileJar)
+
+            await Promise.all(
+                files.successes.map(async file => {
+                    const image = await Image.create({
+                        path: file.fileName,
+                        size: file.size,
+                        original_name: file.clientName,
+                        extension: file.subtype
+                    })
+                    images.push(image)
+                })
+            )
+            images = await transform.collection(images, Transformer)
+
             return response
-                .status(400)
-                .send({ message: 'Não foi possível processar esta imagem' })
+                .status(201)
+                .send({ success: images, errrors: files.errors })
         } catch (e) {
             return response.status(500).send({
                 message: 'Não foi possível processar a sua soliticação',
