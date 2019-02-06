@@ -113,29 +113,6 @@ class CategoryController {
         try {
             const category = await Category.findOrFail(params.id)
             category.merge(request.only(['title', 'description', 'image_id']))
-
-            // Tratamento da imagem
-            const image = request.file('image', {
-                types: ['image'],
-                size: '2mb'
-            })
-
-            if (image) {
-                let file = await manage_single_upload(image)
-                if (file.moved()) {
-                    const category_image = await Image.create(
-                        {
-                            path: file.fileName,
-                            size: file.size,
-                            original_name: file.clientName,
-                            extension: file.subtype
-                        },
-                        transaction
-                    )
-                    category.image_id = category_image.id
-                }
-            }
-
             await category.save(transaction)
             await transaction.commit()
             return response.send(await transform.item(category, Transformer))
