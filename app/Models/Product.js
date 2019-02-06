@@ -4,6 +4,10 @@
 const Model = use('Model')
 
 class Product extends Model {
+    featuredImage() {
+        return this.belongsTo('App/Models/Image')
+    }
+
     /**
      * Relacionamento entre o produto e as imagens
      */
