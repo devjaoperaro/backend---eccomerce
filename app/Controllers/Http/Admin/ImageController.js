@@ -104,25 +104,39 @@ class ImageController {
         }
     }
 
-    async show({ request, response, params, transform }) {
+    async update({ request, response, params: { id }, transform }) {
+        const image = await Image.findOrFail(id)
+        try {
+            image.merge(request.only(['original_name']))
+            await image.save()
+            return response
+                .status(200)
+                .send(await transform.item(image, Transformer))
+        } catch (e) {
+            return response.status(500).send({
+                message: 'Não foi possível processar a sua soliticação',
+                error: e.message
+            })
+        }
+    }
+
+    async show({ response, params, transform }) {
         const image = await Image.findOrFail(params.id)
         return response.send(await transform.item(image, Transformer))
     }
 
-    async destroy({ request, response, params }) {
+    async destroy({ response, params }) {
         const image = await Image.findOrFail(params.id)
 
         try {
             let filePath = Helpers.publicPath(`uploads/${image.path}`)
 
             await fs.unlink(filePath, err => {
-                if (err) throw err
+                // if (err) throw err
             })
 
             await image.delete()
-            return response
-                .status(410)
-                .send({ message: 'Imagem deletada com sucesso!' })
+            return response.status(204).send()
         } catch (e) {
             return response.status(400).send({
                 message: 'Não foi possível processar a sua soliticação',
