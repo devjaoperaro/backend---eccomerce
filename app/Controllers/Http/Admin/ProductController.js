@@ -44,7 +44,12 @@ class ProductController {
     async store({ request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
-            let product = request.only(['name', 'description', 'price'])
+            let product = request.only([
+                'name',
+                'description',
+                'price',
+                'image_id'
+            ])
             const { images } = request.only(['images'])
             product = await Product.create(product, transaction)
             await product.images().attach(images, null, transaction)
@@ -117,7 +122,7 @@ class ProductController {
             await product.images().detach(null, transaction)
             await product.delete(transaction)
             await transaction.commit()
-            return response.send({ message: 'Produto deletado com sucesso' })
+            return response.status(204).send()
         } catch (error) {
             await transaction.rollback()
             return response.status(error.status).send(error)
