@@ -17,7 +17,7 @@ class ImageTransformer extends TransformerAbstract {
         return {
             id: image.id,
             size: image.size,
-            name: image.original_name,
+            original_name: image.original_name,
             extension: image.extension,
             url: image.url
         }
