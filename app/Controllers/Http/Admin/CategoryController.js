@@ -135,11 +135,8 @@ class CategoryController {
      */
     async destroy({ params, response }) {
         const category = await Category.find(params.id)
-        category.delete()
-        return response.send({
-            status: 'sucesso',
-            message: 'Categoria deletada com sucesso'
-        })
+        await category.delete()
+        return response.status(204).send()
     }
 }
 
