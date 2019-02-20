@@ -19,10 +19,15 @@ class OrderTransformer extends TransformerAbstract {
      * This method is used to transform the data.
      */
     transform(order) {
+        order = order.toJSON()
         return {
             id: order.id,
             subtotal: order.subtotal,
-            status: order.status
+            status: order.status,
+            total: order.total,
+            qty_items: order.qty_items,
+            date: order.created_at,
+            discount: order.discount ? order.discount : 0
         }
     }
 

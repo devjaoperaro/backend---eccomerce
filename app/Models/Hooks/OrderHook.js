@@ -3,8 +3,22 @@
 const OrderHook = (exports = module.exports = {})
 
 OrderHook.updateValues = async modelInstance => {
-    modelInstance.subtotal = await modelInstance.items().getSum('subtotal')
-    modelInstance.qty_items = await modelInstance.items().getSum('quantity')
-    modelInstance.discount = await modelInstance.coupons().getSum('discount')
-    modelInstance.total = modelInstance.subtotal - modelInstance.discount
+    modelInstance.$sideLoaded.subtotal = await modelInstance
+        .items()
+        .getSum('subtotal')
+    modelInstance.$sideLoaded.qty_items = await modelInstance
+        .items()
+        .getSum('quantity')
+    modelInstance.$sideLoaded.discount = await modelInstance
+        .coupons()
+        .getSum('discount')
+    modelInstance.total =
+        modelInstance.$sideLoaded.subtotal - modelInstance.$sideLoaded.discount
+    return modelInstance
+}
+
+OrderHook.updateCollectionValues = async models => {
+    for (let model of models) {
+        model = await OrderHook.updateValues(model)
+    }
 }

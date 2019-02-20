@@ -16,8 +16,17 @@ class ProductController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ request, response, view, transform, pagination }) {
-        const products = await Product.query().paginate(
+    async index({ request, response, transform, pagination }) {
+        const { title } = request.only(['title'])
+
+        const query = Product.query()
+
+        // Adiciona o where, caso seja solicitado via url params
+        if (title) {
+            query.where('name', 'LIKE', `%${title}%`)
+        }
+
+        const products = await query.paginate(
             pagination.page,
             pagination.perpage
         )
@@ -35,7 +44,12 @@ class ProductController {
     async store({ request, response, transform }) {
         const transaction = await Database.beginTransaction()
         try {
-            let product = request.only(['name', 'description', 'price'])
+            let product = request.only([
+                'name',
+                'description',
+                'price',
+                'image_id'
+            ])
             const { images } = request.only(['images'])
             product = await Product.create(product, transaction)
             await product.images().attach(images, null, transaction)
@@ -75,7 +89,12 @@ class ProductController {
         const transaction = await Database.beginTransaction()
         const product = await Product.findOrFail(params.id)
         try {
-            const data = request.only(['name', 'description', 'price'])
+            const data = request.only([
+                'name',
+                'description',
+                'price',
+                'image_id'
+            ])
             const { images } = request.only(['images'])
             product.merge(data)
             await product.save(transaction)
@@ -103,7 +122,7 @@ class ProductController {
             await product.images().detach(null, transaction)
             await product.delete(transaction)
             await transaction.commit()
-            return response.send({ message: 'Produto deletado com sucesso' })
+            return response.status(204).send()
         } catch (error) {
             await transaction.rollback()
             return response.status(error.status).send(error)

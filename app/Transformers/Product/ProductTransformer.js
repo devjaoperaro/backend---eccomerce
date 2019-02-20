@@ -11,7 +11,7 @@ const ImageTransformer = use('App/Transformers/Product/ProductImageTransformer')
  */
 class ProductTransformer extends TransformerAbstract {
     defaultInclude() {
-        return ['images']
+        return ['images', 'image']
     }
     /**
      * This method is used to transform the data.
@@ -27,6 +27,10 @@ class ProductTransformer extends TransformerAbstract {
 
     includeImages(product) {
         return this.collection(product.getRelated('images'), ImageTransformer)
+    }
+
+    includeImage(product) {
+        return this.item(product.getRelated('image'), ImageTransformer)
     }
 }
 

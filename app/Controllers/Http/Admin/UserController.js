@@ -15,11 +15,19 @@ class UserController {
      * @param {Response} ctx.response
      * @param {View} ctx.view
      */
-    async index({ transform, pagination }) {
-        const users = await User.query().paginate(
-            pagination.page,
-            pagination.perpage
-        )
+    async index({ request, transform, pagination }) {
+        const { name } = request.only(['name'])
+
+        const query = User.query()
+
+        if (name) {
+            query
+                .where('name', 'LIKE', `%${name}%`)
+                .orWhere('surname', 'LIKE', `%${name}%`)
+                .orWhere('email', 'LIKE', `${name}`)
+        }
+
+        const users = await query.paginate(pagination.page, pagination.perpage)
         return transform.paginate(users, UserTransformer)
     }
 

@@ -5,6 +5,8 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const OrderTransformer = use('App/Transformers/Order/OrderTransformer')
 const Order = use('App/Models/Order')
+const Database = use('Database')
+const OrderService = use('App/Services/Orders/OrderService')
 
 /**
  * Resourceful controller for interacting with orders
@@ -24,7 +26,6 @@ class OrderController {
             pagination.page,
             pagination.perpage
         )
-
         return response.send(await transform.paginate(orders, OrderTransformer))
     }
 
@@ -36,7 +37,25 @@ class OrderController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async store({ request, response }) {}
+    async store({ request, response, transform }) {
+        const trx = await Database.beginTransaction()
+        try {
+            const { user_id, items } = request.all()
+            const order = await Order.create({ user_id }, trx)
+            const service = new OrderService(order, trx)
+            if (items) {
+                await service.syncItems(items)
+            }
+            await trx.commit()
+            let _order = await transform.item(order, OrderTransformer)
+            return response.status(201).send({ order: _order })
+        } catch (error) {
+            await trx.rollback()
+            return response.status(400).send({
+                message: 'Não foi possível criar seu pedido no momento!'
+            })
+        }
+    }
 
     /**
      * Display a single order.
@@ -60,7 +79,25 @@ class OrderController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async update({ params, request, response }) {}
+    async update({ params, request, response, transform }) {
+        const order = await Order.findOrFail(params.id)
+        const trx = await Database.beginTransaction()
+        try {
+            const { user_id, items, status } = request.all()
+            order.merge({ user_id, status })
+            const service = new OrderService(order, trx)
+            await service.updateItems(items)
+            await order.save(trx)
+            await trx.commit()
+            let _order = await transform.item(order, OrderTransformer)
+            return response.send({ order: _order })
+        } catch (error) {
+            await trx.rollback()
+            return response.status(400).send({
+                message: 'Não foi possível atualizar este pedido!'
+            })
+        }
+    }
 
     /**
      * Delete a order with id.
@@ -70,7 +107,20 @@ class OrderController {
      * @param {Request} ctx.request
      * @param {Response} ctx.response
      */
-    async destroy({ params, request, response }) {}
+    async destroy({ params, request, response }) {
+        const order = await Order.findOrFail(params.id)
+        const trx = await Database.beginTransaction()
+        try {
+            await order.items().delete(trx)
+            await order.delete(trx)
+            return response.status(204).send()
+        } catch (error) {
+            await trx.rollback()
+            return response.status(400).send({
+                message: 'Erro ao deletar este pedido!'
+            })
+        }
+    }
 }
 
 module.exports = OrderController
