@@ -26,6 +26,7 @@ class OrderTransformer extends TransformerAbstract {
             status: order.status,
             total: order.total,
             qty_items: order.qty_items,
+            date: order.created_at,
             discount: order.discount ? order.discount : 0
         }
     }
