@@ -1,7 +1,7 @@
 'use strict'
 
 const TransformerAbstract = use('Adonis/Addons/Bumblebee/TransformerAbstract')
-const productTransformer = use('App/Transformers/Coupon/ProductsTransformer')
+const productTransformer = use('App/Transformers/Product/ProductTransformer')
 
 /**
  * OrderItemTransformer class
