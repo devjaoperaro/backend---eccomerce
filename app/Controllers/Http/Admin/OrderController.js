@@ -48,7 +48,7 @@ class OrderController {
             }
             await trx.commit()
             let _order = await transform.item(order, OrderTransformer)
-            return response.status(201).send({ order: _order })
+            return response.status(201).send(_order)
         } catch (error) {
             await trx.rollback()
             return response.status(400).send({
@@ -68,7 +68,9 @@ class OrderController {
      */
     async show({ params, transform, response }) {
         const order = await Order.findOrFail(params.id)
-        return response.send(await transform.item(order, OrderTransformer))
+        return response.send(
+            await transform.include('user,items').item(order, OrderTransformer)
+        )
     }
 
     /**
