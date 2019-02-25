@@ -40,8 +40,8 @@ class OrderController {
     async store({ request, response, transform }) {
         const trx = await Database.beginTransaction()
         try {
-            const { user_id, items } = request.all()
-            const order = await Order.create({ user_id }, trx)
+            const { user_id, items, status } = request.all()
+            const order = await Order.create({ user_id, status }, trx)
             const service = new OrderService(order, trx)
             if (items) {
                 await service.syncItems(items)
