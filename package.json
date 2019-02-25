@@ -1,7 +1,7 @@
 {
     "name": "adonis-ecommerce-realtime",
-    "version": "4.1.0",
-    "adonis-version": "4.1.0",
+    "version": "1.0.0",
+    "adonis-version": "1.0.0",
     "description": "Adonis API Server for E-commerce realtime application",
     "main": "index.js",
     "scripts": {
