@@ -46,18 +46,14 @@ class CouponController {
                 'recursive'
             ])
 
-            const { users, products, orders } = request.only([
-                'users',
-                'products',
-                'orders'
-            ])
+            const { users, products } = request.only(['users', 'products'])
 
             const coupon = await Coupon.create(data)
             const service = new Service(coupon, transaction)
             // insere os relacionamentos no DB
             users ? await service.syncUsers(users) : false
             products ? await service.syncProducts(products) : false
-            orders ? await service.syncOrders(orders) : false
+            // orders ? await service.syncOrders(orders) : false
 
             await transaction.commit()
 
@@ -65,7 +61,7 @@ class CouponController {
                 .status(201)
                 .send(
                     await transform
-                        .include('users,products,orders')
+                        .include('users,products')
                         .item(coupon, Transformer)
                 )
         } catch (error) {
