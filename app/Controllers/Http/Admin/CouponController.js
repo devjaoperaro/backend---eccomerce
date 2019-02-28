@@ -146,14 +146,14 @@ class CouponController {
      */
     async destroy({ params, request, response }) {
         const transaction = await Database.beginTransaction()
-        const coupon = Coupon.findOrFail(params.id)
+        const coupon = await Coupon.findOrFail(params.id)
         try {
             await coupon.products().detach(null, transaction)
             await coupon.orders().detach(null, transaction)
             await coupon.users().detach(null, transaction)
             await coupon.delete(transaction)
             await transaction.commit()
-            return response.send({ message: 'Cupom deletado com sucesso!' })
+            return response.status(204).send({})
         } catch (error) {
             await transaction.rollback()
             return response.status(error.status).send(error)
