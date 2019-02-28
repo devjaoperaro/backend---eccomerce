@@ -148,9 +148,9 @@ class CouponController {
         const transaction = await Database.beginTransaction()
         const coupon = await Coupon.findOrFail(params.id)
         try {
-            await coupon.products().detach(null, transaction)
-            await coupon.orders().detach(null, transaction)
-            await coupon.users().detach(null, transaction)
+            await coupon.products().detach([], transaction)
+            await coupon.orders().detach([], transaction)
+            await coupon.users().detach([], transaction)
             await coupon.delete(transaction)
             await transaction.commit()
             return response.status(204).send({})
