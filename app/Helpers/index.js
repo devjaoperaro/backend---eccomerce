@@ -77,8 +77,20 @@ const manage_multiple_uploads = async (fileJar, path = null) => {
     return { successes, errors }
 }
 
+/**
+ * Calculate a percentage value from a given value
+ *
+ * @param {Number} baseValue
+ * @param {Number} percentage
+ * @return {Number} the percentage value
+ */
+const calcPercent = (basevalue, percentage) => {
+    return (basevalue / 100) * percentage
+}
+
 module.exports = {
     str_random,
     manage_single_upload,
-    manage_multiple_uploads
+    manage_multiple_uploads,
+    calcPercent
 }

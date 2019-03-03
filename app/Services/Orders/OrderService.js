@@ -1,4 +1,6 @@
 'use stric'
+const Database = use('Database')
+const { calcPercent } = use('App/Helpers')
 
 class OrderService {
     constructor(modelInstance, trx) {
@@ -29,6 +31,36 @@ class OrderService {
                 await item.save(this.trx)
             })
         )
+    }
+
+    applyToProducts(orderItems, availableProducts) {
+        orderItems.map()
+    }
+
+    async applyDiscount(coupon) {
+        // armazena o saldo do desconto
+
+        /**
+         * Calcula o desconto baseado nos produtos que estão no pedido
+         */
+        const couponProducts = await Database.from('coupon_product')
+            .where('coupon_id', coupon.id)
+            .pluck('product_id') // retorna um array com os IDs
+
+        // verifica se este cupon tem algum produto associado
+        if (Array.isArray(couponProducts) && couponProducts.length > 0) {
+            const availableItems = await this.model
+                .items()
+                .whereHas('product', builder => {
+                    builder.whereIn('id', couponProducts)
+                })
+                .fetch()
+
+            // este pedido tem itens cujo cupom de desconto se aplica
+            if (availableItems.rows && availableItems.rows.length > 0) {
+                //
+            }
+        }
     }
 }
 

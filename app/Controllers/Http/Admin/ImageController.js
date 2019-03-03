@@ -35,10 +35,9 @@ class ImageController {
     }
 
     async index({ request, response, pagination }) {
-        let images = await Image.query().paginate(
-            pagination.page,
-            pagination.perpage
-        )
+        let images = await Image.query()
+            .orderBy('id', 'DESC')
+            .paginate(pagination.page, pagination.perpage)
         return response.send(images)
     }
 

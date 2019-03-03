@@ -5,6 +5,7 @@
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 const OrderTransformer = use('App/Transformers/Order/OrderTransformer')
 const Order = use('App/Models/Order')
+const Coupon = use('App/Models/Coupon')
 const Database = use('Database')
 const OrderService = use('App/Services/Orders/OrderService')
 
@@ -125,6 +126,24 @@ class OrderController {
             return response.status(400).send({
                 message: 'Erro ao deletar este pedido!'
             })
+        }
+    }
+
+    async applyDiscount({ params: { id }, request, response, transform }) {
+        const { code } = request.all()
+        const coupon = await Coupon.findByOrFail('code', code)
+        const order = await Order.findOrFail(id)
+        try {
+            const service = new OrderService(order)
+            var couponInfo = await service.applyDiscount(coupon)
+            const _order = await transform
+                .include('user,coupons,items')
+                .item(order, OrderTransformer)
+            return response.send({ order: _order, info: coupon })
+        } catch (error) {
+            return response
+                .status(400)
+                .send({ message: 'Não foi possível aplicar o desconto!' })
         }
     }
 }
