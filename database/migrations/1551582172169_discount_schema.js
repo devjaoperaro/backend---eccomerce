@@ -9,7 +9,7 @@ class DiscountSchema extends Schema {
       table.increments()
       table.integer('coupon_id').unsigned()
       table.integer('order_id').unsigned()
-      table.decimal('amount', 12, 2)
+      table.decimal('amount', 12, 2).defaultTo(0.0)
       table.enu('status', ['pending', 'applied']).defaultTo('pending')
 
       table.timestamps()

@@ -6,6 +6,7 @@
 const OrderTransformer = use('App/Transformers/Order/OrderTransformer')
 const Order = use('App/Models/Order')
 const Coupon = use('App/Models/Coupon')
+const Discount = use('App/Models/Discount')
 const Database = use('Database')
 const OrderService = use('App/Services/Orders/OrderService')
 
@@ -23,10 +24,9 @@ class OrderController {
    * @param {View} ctx.view
    */
   async index({ transform, response, pagination }) {
-    const orders = await Order.query().paginate(
-      pagination.page,
-      pagination.perpage
-    )
+    const orders = await Order.query()
+      .orderBy('id', 'DESC')
+      .paginate(pagination.page, pagination.perpage)
     return response.send(await transform.paginate(orders, OrderTransformer))
   }
 
@@ -135,7 +135,15 @@ class OrderController {
     const order = await Order.findOrFail(id)
     try {
       const service = new OrderService(order)
-      var couponInfo = await service.applyDiscount(coupon)
+      canAddDiscount = await service.canApplyDiscount(coupon)
+
+      if (canAddDiscount) {
+        const discount = await Discount.create({
+          coupon_id: coupon.id,
+          order_id: order.id
+        })
+      }
+
       const _order = await transform
         .include('user,coupons,items')
         .item(order, OrderTransformer)
