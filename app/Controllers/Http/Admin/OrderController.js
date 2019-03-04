@@ -97,7 +97,7 @@ class OrderController {
       await order.save(trx)
       await trx.commit()
       let _order = await transform
-        .include('items,user')
+        .include('items,user,coupons,discounts')
         .item(order, OrderTransformer)
       return response.send(_order)
     } catch (error) {
@@ -141,7 +141,7 @@ class OrderController {
       const canAddDiscount = await service.canApplyDiscount(coupon)
 
       if (canAddDiscount) {
-        discount = await Discount.create({
+        discount = await Discount.findOrCreate({
           order_id: order.id,
           coupon_id: coupon.id
         })
