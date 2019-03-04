@@ -35,6 +35,20 @@ class CouponController {
    */
   async store({ request, response, transform }) {
     const transaction = await Database.beginTransaction()
+    /**
+     * Abaixo seguem as opções para as quais o cupom pode ser utilizado
+     *
+     * 1 - produto - pode ser usado apenas em produtos específicos
+     * 2 - clients - pode ser usado apenas por clientes específicos
+     * 3 - produtos e clientes - por ser utilizado por clientes especificos para
+     * aplicar descontos em produtos específicos.
+     * 4 - pode ser utilizado por qualquer cliente em qualquer pedido
+     */
+    var can_use_for = {
+      client: false,
+      product: false
+    }
+
     try {
       const data = request.only([
         'code',
@@ -50,9 +64,27 @@ class CouponController {
       const coupon = await Coupon.create(data, transaction)
       const service = new Service(coupon, transaction)
       // insere os relacionamentos no DB
-            users ? await service.syncUsers(users) : false
-            products ? await service.syncProducts(products) : false
-            // orders ? await service.syncOrders(orders) : false
+      if (users.length > 0) {
+        await service.syncUsers(users)
+        can_use_for.client = true
+      }
+
+      if (products.length > 0) {
+        await service.syncProducts(products)
+        can_use_for.product = true
+      }
+
+      if (can_use_for.product && can_use_for.client) {
+        coupon.can_use_for = 'product_client'
+      } else if (can_use_for.product && !can_use_for.client) {
+        coupon.can_use_for = 'product'
+      } else if (!can_use_for.product && can_use_for.client) {
+        coupon.can_use_for = 'client'
+      } else {
+        coupon.can_use_for = 'all'
+      }
+
+      await coupon.save(transaction)
 
       await transaction.commit()
 
@@ -92,6 +124,19 @@ class CouponController {
   async update({ params, request, response, transform }) {
     const transaction = await Database.beginTransaction()
     let coupon = await Coupon.findOrFail(params.id)
+    /**
+     * Abaixo seguem as opções para as quais o cupom pode ser utilizado
+     *
+     * 1 - produto - pode ser usado apenas em produtos específicos
+     * 2 - clients - pode ser usado apenas por clientes específicos
+     * 3 - produtos e clientes - por ser utilizado por clientes especificos para
+     * aplicar descontos em produtos específicos.
+     * 4 - pode ser utilizado por qualquer cliente em qualquer pedido
+     */
+    var can_use_for = {
+      client: false,
+      product: false
+    }
     try {
       const data = request.only([
         'code',

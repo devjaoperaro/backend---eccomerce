@@ -138,10 +138,7 @@ class OrderController {
       canAddDiscount = await service.canApplyDiscount(coupon)
 
       if (canAddDiscount) {
-        const discount = await Discount.create({
-          coupon_id: coupon.id,
-          order_id: order.id
-        })
+        await order.coupons().attach([coupon.id])
       }
 
       const _order = await transform

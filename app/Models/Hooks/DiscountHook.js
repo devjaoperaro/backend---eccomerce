@@ -1,0 +1,70 @@
+'use strict'
+const Coupon = use('App/Models/Coupon')
+const Order = use('App/Models/Order')
+const Database = use('Database')
+const DiscountHook = (exports = module.exports = {})
+
+DiscountHook.calculateValues = async modelInstance => {
+  var couponProducts,
+    discountItems = []
+
+  switch (coupon.can_use_for) {
+    /**
+     * Caso o cupom esteja diretamente associado a alguns produtos
+     * então devemos verificar estes dois casos
+     */
+    case 'product_client' || 'product':
+      /**
+       * Vou buscar na base de dados, quais produtos podem receber desconto
+       * neste pedido
+       */
+      couponProducts = await Database.from('coupon_product')
+        .where('coupon_id', modelInstance.coupon_id)
+        .pluck('product_id')
+      discountItems = await Database.from('order_items')
+        .where('order_id', modelInstance.oder_id)
+        .whereIn('product_id', couponProducts)
+        .fetch()
+      // calcula o valor do desconto baseando-se no tipo do de desconto
+      if (coupon.type === 'percent') {
+        for (let orderItem of discountItems) {
+          modelInstance.discount += (orderItem.subtotal / 100) * coupon.discount
+        }
+      } else if (coupon.type === 'currency') {
+        for (let orderItem of discountItems) {
+          modelInstance.discount +=
+            orderItem.subtotal - coupon.discount * orderItem.quantity
+        }
+      } else {
+        // coupon.type === 'free'
+        for (let orderItem of discountItems) {
+          // Caso o cupom dê gratuidade, logo o item será gratuito
+          modelInstance.discount += orderItem.subtotal
+        }
+      }
+      break
+    default:
+      // case 'client' || 'all':
+      const orderItems = await Database.from('order_items')
+        .where('order_id', modelInstance.order_id)
+        .fetch()
+
+      if (coupon.type === 'percent') {
+        for (let orderItem of orderItems) {
+          modelInstance.discount += (orderItem.subtotal / 100) * coupon.discount
+        }
+      } else if (coupon.type === 'currency') {
+        for (let orderItem of orderItems) {
+          modelInstance.discount +=
+            orderItem.subtotal - coupon.discount * orderItem.quantity
+        }
+      } else {
+        // coupon.type === 'free'
+        for (let orderItem of orderItems) {
+          // Caso o cupom dê gratuidade, logo o item será gratuito
+          modelInstance.discount += orderItem.subtotal
+        }
+      }
+      break
+  }
+}

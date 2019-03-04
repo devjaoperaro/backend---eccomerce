@@ -4,27 +4,26 @@
 const Schema = use('Schema')
 
 class CouponSchema extends Schema {
-    up() {
-        this.create('coupons', table => {
-            table.increments()
-            table.string('code', 100).notNullable()
-            table.decimal('discount', 12, 2).notNullable()
-            table.dateTime('valid_from').defaultTo(this.fn.now())
-            table.dateTime('valid_until')
-            table.integer('quantity').defaultTo(1)
+  up() {
+    this.create('coupons', table => {
+      table.increments()
+      table.string('code', 100).notNullable()
+      table.decimal('discount', 12, 2).notNullable()
+      table.dateTime('valid_from').defaultTo(this.fn.now())
+      table.dateTime('valid_until')
+      table.integer('quantity').defaultTo(1)
+      table.enu('can_use_for', ['product', 'client', 'product_client', 'all'])
 
-            table
-                .enu('type', ['free', 'percent', 'currency'])
-                .defaultTo('currency')
-            table.boolean('recursive').defaultTo(false)
+      table.enu('type', ['free', 'percent', 'currency']).defaultTo('currency')
+      table.boolean('recursive').defaultTo(false)
 
-            table.timestamps()
-        })
-    }
+      table.timestamps()
+    })
+  }
 
-    down() {
-        this.drop('coupons')
-    }
+  down() {
+    this.drop('coupons')
+  }
 }
 
 module.exports = CouponSchema
