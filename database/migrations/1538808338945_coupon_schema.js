@@ -9,7 +9,7 @@ class CouponSchema extends Schema {
       table.increments()
       table.string('code', 100).notNullable()
       table.decimal('discount', 12, 2).notNullable()
-      table.dateTime('valid_from').defaultTo(this.fn.now())
+      table.dateTime('valid_from')
       table.dateTime('valid_until')
       table.integer('quantity').defaultTo(1)
       table.enu('can_use_for', ['product', 'client', 'product_client', 'all'])
