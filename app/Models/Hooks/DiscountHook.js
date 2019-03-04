@@ -68,5 +68,5 @@ DiscountHook.calculateValues = async modelInstance => {
       }
       break
   }
-  const total = modelInstance.discount
+  return modelInstance
 }
