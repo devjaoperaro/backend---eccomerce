@@ -72,7 +72,9 @@ class OrderController {
   async show({ params, transform, response }) {
     const order = await Order.findOrFail(params.id)
     return response.send(
-      await transform.include('items,user').item(order, OrderTransformer)
+      await transform
+        .include('items,user,discounts')
+        .item(order, OrderTransformer)
     )
   }
 
@@ -133,12 +135,16 @@ class OrderController {
     const { code } = request.all()
     const coupon = await Coupon.findByOrFail('code', code)
     const order = await Order.findOrFail(id)
+    var discount
     try {
       const service = new OrderService(order)
-      canAddDiscount = await service.canApplyDiscount(coupon)
+      const canAddDiscount = await service.canApplyDiscount(coupon)
 
       if (canAddDiscount) {
-        await Discount.create({ order_id: order.id, coupon_id: coupon.id })
+        discount = await Discount.create({
+          order_id: order.id,
+          coupon_id: coupon.id
+        })
       }
 
       const _order = await transform

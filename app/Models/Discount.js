@@ -21,6 +21,17 @@ class Discount extends Model {
   coupon() {
     return this.belongsTo('App/Models/Coupon')
   }
+
+  /**
+   * Diz para o ORM que este model não tem os campos created_at e updated_at
+   */
+  static get createdAtColumn() {
+    return null
+  }
+
+  static get updatedAtColumn() {
+    return null
+  }
 }
 
 module.exports = Discount

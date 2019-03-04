@@ -7,6 +7,8 @@ const DiscountHook = (exports = module.exports = {})
 DiscountHook.calculateValues = async modelInstance => {
   var couponProducts,
     discountItems = []
+  modelInstance.discount = 0
+  const coupon = await Coupon.find(modelInstance.coupon_id)
 
   switch (coupon.can_use_for) {
     /**
@@ -22,9 +24,8 @@ DiscountHook.calculateValues = async modelInstance => {
         .where('coupon_id', modelInstance.coupon_id)
         .pluck('product_id')
       discountItems = await Database.from('order_items')
-        .where('order_id', modelInstance.oder_id)
+        .where('order_id', modelInstance.order_id)
         .whereIn('product_id', couponProducts)
-        .fetch()
       // calcula o valor do desconto baseando-se no tipo do de desconto
       if (coupon.type === 'percent') {
         for (let orderItem of discountItems) {
@@ -67,4 +68,5 @@ DiscountHook.calculateValues = async modelInstance => {
       }
       break
   }
+  const total = modelInstance.discount
 }
