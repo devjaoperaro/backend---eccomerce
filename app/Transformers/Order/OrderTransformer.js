@@ -23,9 +23,12 @@ class OrderTransformer extends TransformerAbstract {
     order = order.toJSON()
     return {
       id: order.id,
-      subtotal: parseFloat(order.__meta__.subtotal.toFixed(2)),
+      subtotal:
+        order.__meta__ && order.__meta__.subtotal
+          ? parseFloat(order.__meta__.subtotal.toFixed(2))
+          : 0,
       status: order.status,
-      total: parseFloat(order.total.toFixed(2)),
+      total: order.total ? parseFloat(order.total.toFixed(2)) : 0,
       qty_items: order.qty_items,
       date: order.created_at,
       discount:

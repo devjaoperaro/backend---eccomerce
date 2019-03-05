@@ -64,12 +64,12 @@ class CouponController {
       const coupon = await Coupon.create(data, transaction)
       const service = new Service(coupon, transaction)
       // insere os relacionamentos no DB
-      if (users.length > 0) {
+      if (users && users.length > 0) {
         await service.syncUsers(users)
         can_use_for.client = true
       }
 
-      if (products.length > 0) {
+      if (products && products.length > 0) {
         await service.syncProducts(products)
         can_use_for.product = true
       }

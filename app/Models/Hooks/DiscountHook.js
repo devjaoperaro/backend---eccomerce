@@ -9,6 +9,7 @@ DiscountHook.calculateValues = async modelInstance => {
     discountItems = []
   modelInstance.discount = 0
   const coupon = await Coupon.find(modelInstance.coupon_id)
+  const order = await Order.find(modelInstance.order_id)
 
   switch (coupon.can_use_for) {
     /**
@@ -33,9 +34,9 @@ DiscountHook.calculateValues = async modelInstance => {
         }
       } else if (coupon.type === 'currency') {
         for (let orderItem of discountItems) {
-          modelInstance.discount +=
-            orderItem.subtotal - coupon.discount * orderItem.quantity
+          modelInstance.discount += coupon.discount * orderItem.quantity
         }
+        modelInstance
       } else {
         // coupon.type === 'free'
         for (let orderItem of discountItems) {
@@ -46,25 +47,13 @@ DiscountHook.calculateValues = async modelInstance => {
       break
     default:
       // case 'client' || 'all':
-      const orderItems = await Database.from('order_items')
-        .where('order_id', modelInstance.order_id)
-        .fetch()
-
       if (coupon.type === 'percent') {
-        for (let orderItem of orderItems) {
-          modelInstance.discount += (orderItem.subtotal / 100) * coupon.discount
-        }
+        modelInstance.discount = (order.subtotal / 100) * coupon.discount
       } else if (coupon.type === 'currency') {
-        for (let orderItem of orderItems) {
-          modelInstance.discount +=
-            orderItem.subtotal - coupon.discount * orderItem.quantity
-        }
+        modelInstance.discount = coupon.discount
       } else {
         // coupon.type === 'free'
-        for (let orderItem of orderItems) {
-          // Caso o cupom dê gratuidade, logo o item será gratuito
-          modelInstance.discount += orderItem.subtotal
-        }
+        modelInstance.discount = order.subtotal
       }
       break
   }
