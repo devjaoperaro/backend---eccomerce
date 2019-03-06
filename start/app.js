@@ -11,14 +11,14 @@
 |
 */
 const providers = [
-    '@adonisjs/framework/providers/AppProvider',
-    '@adonisjs/auth/providers/AuthProvider',
-    '@adonisjs/bodyparser/providers/BodyParserProvider',
-    '@adonisjs/cors/providers/CorsProvider',
-    '@adonisjs/lucid/providers/LucidProvider',
-    'adonis-acl/providers/AclProvider',
-    '@adonisjs/validator/providers/ValidatorProvider',
-    'adonis-bumblebee/providers/BumblebeeProvider'
+  '@adonisjs/framework/providers/AppProvider',
+  '@adonisjs/auth/providers/AuthProvider',
+  '@adonisjs/bodyparser/providers/BodyParserProvider',
+  '@adonisjs/cors/providers/CorsProvider',
+  '@adonisjs/lucid/providers/LucidProvider',
+  'adonis-acl/providers/AclProvider',
+  '@adonisjs/validator/providers/ValidatorProvider',
+  'adonis-bumblebee/providers/BumblebeeProvider'
 ]
 
 /*
@@ -31,9 +31,9 @@ const providers = [
 |
 */
 const aceProviders = [
-    '@adonisjs/lucid/providers/MigrationsProvider',
-    'adonis-acl/providers/CommandsProvider',
-    'adonis-bumblebee/providers/CommandsProvider'
+  '@adonisjs/lucid/providers/MigrationsProvider',
+  'adonis-acl/providers/CommandsProvider',
+  'adonis-bumblebee/providers/CommandsProvider'
 ]
 
 /*
@@ -49,8 +49,8 @@ const aceProviders = [
 |
 */
 const aliases = {
-    Role: 'Adonis/Acl/Role',
-    Permission: 'Adonis/Acl/Permission'
+  Role: 'Adonis/Acl/Role',
+  Permission: 'Adonis/Acl/Permission'
 }
 
 /*
@@ -61,6 +61,6 @@ const aliases = {
 | Here you store ace commands for your package
 |
 */
-const commands = []
+const commands = ['App/Commands/Rmupload']
 
 module.exports = { providers, aceProviders, aliases, commands }
