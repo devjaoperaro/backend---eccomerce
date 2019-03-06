@@ -26,6 +26,8 @@ class Rmupload extends Command {
       await this.success(
         `${this.icon('success')} Uploads deletados com sucesso!`
       )
+    } else {
+      await this.error(`${this.icon('error')} Abortando!`)
     }
   }
 }
