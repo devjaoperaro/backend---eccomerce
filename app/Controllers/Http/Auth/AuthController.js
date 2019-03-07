@@ -106,6 +106,29 @@ class AuthController {
       })
     }
   }
+
+  async remember({ request, response }) {
+    const reset = await PasswordReset.query()
+      .where('token', request.input('token'))
+      .where('expires_at', '>=', new Date())
+      .firstOrFail()
+
+    return response.send(reset)
+  }
+
+  async reset({ request, response }) {
+    const { email, password } = request.all()
+    const user = await User.findByOrFail('email', email)
+    try {
+      user.merge({ password })
+      await user.save()
+      return response.send({ message: 'Senha alterada com sucesso!' })
+    } catch (error) {
+      return response
+        .status(400)
+        .send({ message: 'Não foi possivel alterar a sua senha!' })
+    }
+  }
 }
 
 module.exports = AuthController
