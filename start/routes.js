@@ -20,32 +20,36 @@ const Route = use('Route')
  * Current User
  */
 Route.get('v1/me', 'UserController.me')
-    .as('me')
-    .middleware('auth')
+  .as('me')
+  .middleware('auth')
 
 /**
  * Auth Routes used for admins and users
  */
 Route.group(() => {
-    Route.post('/register', 'AuthController.register')
-        .as('auth.register')
-        .validator('Clients/ClientRegister')
+  Route.post('/register', 'AuthController.register')
+    .as('auth.register')
+    .validator('Clients/ClientRegister')
 
-    Route.post('login', 'AuthController.login')
-        .as('auth.login')
-        .validator('Clients/ClientLogin')
+  Route.post('login', 'AuthController.login')
+    .as('auth.login')
+    .validator('Clients/ClientLogin')
 
-    Route.post('refresh', 'AuthController.refresh')
-        .as('auth.refresh')
-        .validator('Clients/ClientRefreshToken')
+  Route.post('refresh', 'AuthController.refresh')
+    .as('auth.refresh')
+    .validator('Clients/ClientRefreshToken')
 
-    Route.post('logout', 'AuthController.logout')
-        .as('auth.logout')
-        .middleware(['auth'])
-    // .validator('Clients/ClientRefreshToken')
+  Route.post('logout', 'AuthController.logout')
+    .as('auth.logout')
+    .middleware(['auth'])
+
+  Route.get('reset-password', 'AuthController.remember').as('auth.remember')
+  Route.post('reset-password', 'AuthController.forgot').as('auth.forgot')
+  Route.put('reset-password', 'AuthController.reset').as('auth.reset')
+  // .validator('Clients/ClientRefreshToken')
 })
-    .prefix('v1/auth')
-    .namespace('Auth')
+  .prefix('v1/auth')
+  .namespace('Auth')
 
 /**
  * Administration Routes V1
@@ -53,62 +57,62 @@ Route.group(() => {
  * Prefix: /v1/admin
  */
 Route.group(() => {
-    /**
-     * Categories resource Routes
-     */
-    Route.resource('category', 'CategoryController')
-        .apiOnly()
-        .validator(
-            new Map([
-                [['category.store'], ['Category/Store']],
-                [['category.update'], ['Category/Update']]
-            ])
-        )
-
-    /**
-     * Products Resource Routes
-     */
-    Route.resource('product', 'ProductController').apiOnly()
-
-    /**
-     * Coupons Resource Routes
-     */
-    Route.resource('coupon', 'CouponController').apiOnly()
-
-    /**
-     * Orders Resource Routes
-     */
-    Route.post('order/:id/discount', 'OrderController.applyDiscount')
-    Route.delete('order/:id/discount', 'OrderController.removeDiscount')
-    Route.resource('order', 'OrderController')
-        .apiOnly()
-        .validator(new Map([[['order.store'], ['Order/Order']]]))
-
-    /**
-     * Images Resource Routes
-     */
-    Route.resource('image', 'ImageController').apiOnly()
-    Route.post('image/bulkUpload', 'ImageController.bulkUpload').as(
-        'image.bulkUpload'
+  /**
+   * Categories resource Routes
+   */
+  Route.resource('category', 'CategoryController')
+    .apiOnly()
+    .validator(
+      new Map([
+        [['category.store'], ['Category/Store']],
+        [['category.update'], ['Category/Update']]
+      ])
     )
 
-    /**
-     * Users Resource Rotues
-     */
-    Route.resource('user', 'UserController')
-        .apiOnly()
-        .validator(
-            new Map([
-                [['user.store'], ['User/StoreUser']],
-                [['user.update'], ['User/StoreUser']]
-            ])
-        )
+  /**
+   * Products Resource Routes
+   */
+  Route.resource('product', 'ProductController').apiOnly()
 
-    /**
-     * Dashboard Routes
-     */
-    Route.get('dashboard', 'DashboardController.index').as('dahboard')
+  /**
+   * Coupons Resource Routes
+   */
+  Route.resource('coupon', 'CouponController').apiOnly()
+
+  /**
+   * Orders Resource Routes
+   */
+  Route.post('order/:id/discount', 'OrderController.applyDiscount')
+  Route.delete('order/:id/discount', 'OrderController.removeDiscount')
+  Route.resource('order', 'OrderController')
+    .apiOnly()
+    .validator(new Map([[['order.store'], ['Order/Order']]]))
+
+  /**
+   * Images Resource Routes
+   */
+  Route.resource('image', 'ImageController').apiOnly()
+  Route.post('image/bulkUpload', 'ImageController.bulkUpload').as(
+    'image.bulkUpload'
+  )
+
+  /**
+   * Users Resource Rotues
+   */
+  Route.resource('user', 'UserController')
+    .apiOnly()
+    .validator(
+      new Map([
+        [['user.store'], ['User/StoreUser']],
+        [['user.update'], ['User/StoreUser']]
+      ])
+    )
+
+  /**
+   * Dashboard Routes
+   */
+  Route.get('dashboard', 'DashboardController.index').as('dahboard')
 })
-    .prefix('v1/admin')
-    .namespace('Admin')
-    .middleware(['auth', 'is:(admin || manager)'])
+  .prefix('v1/admin')
+  .namespace('Admin')
+  .middleware(['auth', 'is:(admin || manager)'])
