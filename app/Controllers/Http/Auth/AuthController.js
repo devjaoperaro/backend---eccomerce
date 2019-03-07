@@ -122,6 +122,12 @@ class AuthController {
     try {
       user.merge({ password })
       await user.save()
+      /**
+       * Invalida qualquer outro token que tenha sido gerado anteriormente
+       */
+      await PasswordReset.query()
+        .where('email', user.email)
+        .delete()
       return response.send({ message: 'Senha alterada com sucesso!' })
     } catch (error) {
       return response
