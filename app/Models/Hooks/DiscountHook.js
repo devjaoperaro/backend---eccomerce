@@ -59,3 +59,25 @@ DiscountHook.calculateValues = async modelInstance => {
   }
   return modelInstance
 }
+
+/**
+ * Este método é responsável por diminuir a quantidade de cupons disponíveis
+ */
+DiscountHook.decrementCoupons = async modelInstance => {
+  const query = Database.from('coupons')
+  if (modelInstance.$transaction) {
+    query.transacting(modelInstance.$transaction)
+  }
+  await query.where('id', modelInstance.coupon_id).decrement('quantity', 1)
+}
+
+/**
+ * Este método é responsável por aumentar a quantidade de cupons disponíveis
+ */
+DiscountHook.incrementCoupons = async modelInstance => {
+  const query = Database.from('coupons')
+  if (modelInstance.$transaction) {
+    query.transacting(modelInstance.$transaction)
+  }
+  await query.where('id', modelInstance.coupon_id).increment('quantity', 1)
+}
