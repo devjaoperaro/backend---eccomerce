@@ -32,3 +32,8 @@ require('./auth')
  * Import Administrator Routes
  */
 require('./admin')
+
+/**
+ * Import Client (public) Routes
+ */
+require('./client')
