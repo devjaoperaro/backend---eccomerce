@@ -8,4 +8,6 @@ Route.group(() => {
    * Products
    */
   Route.resource('products', 'ProductController').apiOnly()
-}).namespace('Client')
+})
+  .namespace('Client')
+  .prefix('v1')
