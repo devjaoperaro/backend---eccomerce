@@ -12,7 +12,9 @@ Route.group(() => {
   /**
    * Orders
    */
-  Route.resource('orders', 'OrderController').apiOnly()
+  Route.resource('orders', 'OrderController')
+    .apiOnly()
+    .middleware('auth')
 })
   .namespace('Client')
   .prefix('v1')
