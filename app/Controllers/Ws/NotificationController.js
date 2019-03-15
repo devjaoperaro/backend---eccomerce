@@ -4,26 +4,23 @@ class NotificationController {
   constructor({ socket, request, auth }) {
     this.socket = socket
     this.request = request
-    this.loadUser(auth)
-      .then(user => {
-        socket.broadcast('new:connection', {
-          message: 'Nova Conexão!',
-          user
-        })
+    auth
+      .getUser()
+      .then(usr => {
+        this.user = usr
       })
-      .catch(e => {
-        throw e
+      .then(() => {
+        this.socket.broadcast('new:connection', this.user)
       })
-  }
-
-  async loadUser(auth) {
-    const user = await auth.getUser()
-    return user
   }
 
   onMessage(message) {
-    console.log('Nova mensagem', message)
+    message.user = this.user
     this.socket.broadcastToAll('message', message)
+  }
+
+  onClose() {
+    this.socket.broadcastToAll('drop:connection')
   }
 }
 
