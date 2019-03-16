@@ -52,7 +52,7 @@ class OrderController {
       const { items } = request.only(['items'])
       const client = await auth.getUser()
       var order = await Order.create({ user_id: client.id }, trx)
-      const service = new Service(order, trx)
+      const service = new OrderService(order, trx)
       if (items.length > 0) {
         await service.syncItems(items)
       }

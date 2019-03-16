@@ -51,7 +51,11 @@ module.exports = {
   | Function - Receives the current header and should return one of the above values.
   |
   */
-  headers: Env.get('CORS_ALLOW_HEADERS', true),
+  headers: Env.get('CORS_ALLOW_HEADERS', [
+    'Content-Type',
+    'Authorization',
+    'refresh_token'
+  ]),
 
   /*
   |--------------------------------------------------------------------------
