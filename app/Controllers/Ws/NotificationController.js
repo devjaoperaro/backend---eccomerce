@@ -4,19 +4,18 @@ class NotificationController {
   constructor({ socket, request, auth }) {
     this.socket = socket
     this.request = request
-    auth
+    /* auth
       .getUser()
       .then(usr => {
         this.user = usr
       })
       .then(() => {
         this.socket.broadcast('new:connection', this.user)
-      })
+      }) */
   }
 
   onMessage(message) {
-    message.user = this.user
-    this.socket.broadcastToAll('message', message)
+    this.socket.broadcast('message', message)
   }
 
   onClose() {

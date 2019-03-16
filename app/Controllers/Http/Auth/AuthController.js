@@ -6,6 +6,7 @@ const Database = use('Database')
 const PasswordReset = use('App/Models/PasswordReset')
 const Mail = use('Mail')
 const Env = use('Env')
+const Ws = use('Ws')
 
 class AuthController {
   async register({ request, response }) {
@@ -20,7 +21,13 @@ class AuthController {
 
       // Associa o userRole ao User
       await user.roles().attach([userRole.id], null, trx)
+      // Envia uma notificação de cadastro
+      const topic = Ws.getChannel('notifications').topic('notifications')
+      if (topic) {
+        topic.broadcast('message', 'Novo usuário cadastrado!')
+      }
 
+      // commita a transaction
       await trx.commit()
       return response.status(201).send({ data: user })
     } catch (e) {
