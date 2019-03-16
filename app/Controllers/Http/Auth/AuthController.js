@@ -72,7 +72,7 @@ class AuthController {
       .authenticator('jwt')
       .revokeTokens([refresh_token], true)
 
-    return response.send()
+    return response.status(204).send({})
   }
 
   async forgot({ request, response }) {
