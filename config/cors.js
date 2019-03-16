@@ -51,7 +51,7 @@ module.exports = {
   | Function - Receives the current header and should return one of the above values.
   |
   */
-  headers: true,
+  headers: Env.get('CORS_ALLOW_HEADERS', true),
 
   /*
   |--------------------------------------------------------------------------
@@ -87,5 +87,5 @@ module.exports = {
   | Define Access-Control-Allow-Max-Age
   |
   */
-  maxAge: 90
+  maxAge: 86400
 }
