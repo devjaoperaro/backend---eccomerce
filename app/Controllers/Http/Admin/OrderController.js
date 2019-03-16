@@ -9,6 +9,7 @@ const Coupon = use('App/Models/Coupon')
 const Discount = use('App/Models/Discount')
 const Database = use('Database')
 const OrderService = use('App/Services/Orders/OrderService')
+const Ws = use('Ws')
 
 /**
  * Resourceful controller for interacting with orders
@@ -42,15 +43,22 @@ class OrderController {
     const trx = await Database.beginTransaction()
     try {
       const { user_id, items, status } = request.all()
-      const order = await Order.create({ user_id, status }, trx)
+      let order = await Order.create({ user_id, status }, trx)
       const service = new OrderService(order, trx)
       if (items.length > 0) {
         await service.syncItems(items)
       }
       await trx.commit()
+      // devido aos hooks, é necessário atualizar o valor
+      order = await Order.find(order.id)
       let _order = await transform
         .include('items,user')
         .item(order, OrderTransformer)
+      // Dispara o broadcast de novo pedido
+      const topic = Ws.getChannel('notifications').topic('notifications')
+      if (topic) {
+        topic.broadcast('new:order', _order)
+      }
       return response.status(201).send(_order)
     } catch (error) {
       await trx.rollback()

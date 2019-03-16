@@ -8,6 +8,7 @@ const Order = use('App/Models/Order')
 const Transformer = use('App/Transformers/Order/OrderTransformer')
 const Database = use('Database')
 const Service = use('App/Services/Orders/OrderService')
+const Ws = use('Ws')
 
 /**
  * Resourceful controller for interacting with orders
@@ -54,7 +55,13 @@ class OrderController {
         await service.syncItems(items)
       }
       await trx.commit()
+      order = await Order.find(order.id)
       order = await transform.include('items').item(order, Transformer)
+      // Dispara o broadcast de novo pedido
+      const topic = Ws.getChannel('notifications').topic('notifications')
+      if (topic) {
+        topic.broadcast('new:order', order)
+      }
       return response.status(201).send(order)
     } catch (error) {
       await trx.rollback()
