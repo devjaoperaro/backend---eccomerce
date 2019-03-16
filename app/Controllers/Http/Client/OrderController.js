@@ -4,10 +4,12 @@
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
 
+const OrderTransformer = use('App/Transformers/Order/OrderTransformer')
 const Order = use('App/Models/Order')
-const Transformer = use('App/Transformers/Order/OrderTransformer')
+const Coupon = use('App/Models/Coupon')
+const Discount = use('App/Models/Discount')
 const Database = use('Database')
-const Service = use('App/Services/Orders/OrderService')
+const OrderService = use('App/Services/Orders/OrderService')
 const Ws = use('Ws')
 
 /**
@@ -32,7 +34,7 @@ class OrderController {
     const results = await query
       .orderBy('id', 'DESC')
       .paginate(pagination.page, pagination.perpage)
-    const orders = await transform.paginate(results, Transformer)
+    const orders = await transform.paginate(results, OrderTransformer)
     return response.send(orders)
   }
 
@@ -56,7 +58,7 @@ class OrderController {
       }
       await trx.commit()
       order = await Order.find(order.id)
-      order = await transform.include('items').item(order, Transformer)
+      order = await transform.include('items').item(order, OrderTransformer)
       // Dispara o broadcast de novo pedido
       const topic = Ws.getChannel('notifications').topic('notifications')
       if (topic) {
@@ -101,6 +103,64 @@ class OrderController {
    * @param {Response} ctx.response
    */
   async destroy({ params, request, response }) {}
+
+  async applyDiscount({ params: { id }, request, response, transform, auth }) {
+    const { code } = request.all()
+    const user = await auth.getUser()
+    const coupon = await Coupon.findByOrFail('code', code.toUpperCase())
+
+    const order = await Order.query()
+      .where('user_id', user.id)
+      .where('id', id)
+      .firstOrFail()
+    var discount,
+      info = {}
+    try {
+      const service = new OrderService(order)
+      const canAddDiscount = await service.canApplyDiscount(coupon)
+      const orderDiscounts = await order.coupons().getCount()
+      /**
+       * Efetua as verificações de descontos no pedido
+       * Verifica se o pedido já tem descontos e se pode aplicar +1
+       */
+      const canApplyToOrder =
+        orderDiscounts < 1 || (orderDiscounts >= 1 && coupon.recursive)
+      if (canAddDiscount && canApplyToOrder) {
+        discount = await Discount.findOrCreate({
+          order_id: order.id,
+          coupon_id: coupon.id
+        })
+        info.message = 'Cupom Aplicado com sucesso!'
+        info.success = true
+      } else {
+        info.message = 'Não foi possível aplicar o cupom'
+        info.success = false
+      }
+
+      const _order = await transform
+        .include('user,coupons,items,discounts')
+        .item(order, OrderTransformer)
+      return response.send({ order: _order, info })
+    } catch (error) {
+      return response
+        .status(400)
+        .send({ message: 'Não foi possível aplicar o desconto!' })
+    }
+  }
+
+  async removeDiscount({ params: { id }, request, response }) {
+    const { discount_id } = request.all()
+    const user = await auth.getUser()
+    const order = await Order.query()
+      .where('user_id', user.id)
+      .where('id', id)
+      .firstOrFail()
+    await order
+      .discounts()
+      .where('id', discount_id)
+      .delete()
+    return response.status(204).send({})
+  }
 }
 
 module.exports = OrderController

@@ -12,6 +12,13 @@ Route.group(() => {
   /**
    * Orders
    */
+  Route.post('orders/:id/discount', 'OrderController.applyDiscount').middleware(
+    'auth'
+  )
+  Route.delete(
+    'orders/:id/discount',
+    'OrderController.removeDiscount'
+  ).middleware('auth')
   Route.resource('orders', 'OrderController')
     .apiOnly()
     .middleware('auth')
