@@ -24,7 +24,7 @@ class AuthController {
       // Envia uma notificação de cadastro
       const topic = Ws.getChannel('notifications').topic('notifications')
       if (topic) {
-        topic.broadcast('message', 'Novo usuário cadastrado!')
+        topic.broadcast('new:user', 'Novo usuário cadastrado!')
       }
 
       // commita a transaction
