@@ -4,27 +4,35 @@
 const Model = use('Model')
 
 class Order extends Model {
-    static boot() {
-        super.boot()
+  static boot() {
+    super.boot()
 
-        this.addHook('afterFind', 'OrderHook.updateValues')
-        this.addHook('afterPaginate', 'OrderHook.updateCollectionValues')
-    }
+    this.addHook('afterFind', 'OrderHook.updateValues')
+    this.addHook('afterPaginate', 'OrderHook.updateCollectionValues')
+  }
 
-    /**
-     * Relacionamento entre o pedido e os itens do pedido
-     */
-    items() {
-        return this.hasMany('App/Models/OrderItem')
-    }
+  /**
+   * Relacionamento entre o pedido e os itens do pedido
+   */
+  items() {
+    return this.hasMany('App/Models/OrderItem')
+  }
 
-    coupons() {
-        return this.belongsToMany('App/Models/Coupon')
-    }
+  coupons() {
+    return this.belongsToMany('App/Models/Coupon')
+  }
 
-    user() {
-        return this.belongsTo('App/Models/User')
-    }
+  discounts() {
+    return this.hasMany('App/Models/Discount')
+  }
+
+  user() {
+    return this.belongsTo('App/Models/User', 'user_id', 'id')
+  }
+
+  discounts() {
+    return this.hasMany('App/Models/Discount')
+  }
 }
 
 module.exports = Order

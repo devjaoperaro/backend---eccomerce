@@ -1,7 +1,7 @@
 'use strict'
 
 const TransformerAbstract = use('Adonis/Addons/Bumblebee/TransformerAbstract')
-const productTransformer = use('App/Transformers/Coupon/ProductsTransformer')
+const productTransformer = use('App/Transformers/Product/ProductTransformer')
 
 /**
  * OrderItemTransformer class
@@ -10,23 +10,23 @@ const productTransformer = use('App/Transformers/Coupon/ProductsTransformer')
  * @constructor
  */
 class OrderItemTransformer extends TransformerAbstract {
-    defaultInclude() {
-        return ['product']
+  defaultInclude() {
+    return ['product']
+  }
+  /**
+   * This method is used to transform the data.
+   */
+  transform(item) {
+    return {
+      id: item.id,
+      subtotal: item.subtotal,
+      quantity: item.quantity
     }
-    /**
-     * This method is used to transform the data.
-     */
-    transform(item) {
-        return {
-            id: item.id,
-            subtotal: item.subtotal,
-            quantity: item.quantity
-        }
-    }
+  }
 
-    includeProduct(orderItem) {
-        return this.item(orderItem.getRelated('product'), productTransformer)
-    }
+  includeProduct(orderItem) {
+    return this.item(orderItem.getRelated('product'), productTransformer)
+  }
 }
 
 module.exports = OrderItemTransformer

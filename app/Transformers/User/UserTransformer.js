@@ -1,7 +1,7 @@
 'use strict'
 
 const TransformerAbstract = use('Adonis/Addons/Bumblebee/TransformerAbstract')
-const ImageTransformer = use('App/Transformers/Image/SimpleImageTransformer')
+const ImageTransformer = use('App/Transformers/Image/ImageTransformer')
 
 /**
  * UserTransformer class
@@ -18,7 +18,6 @@ class UserTransformer extends TransformerAbstract {
      */
     transform(user) {
         user = user.toJSON()
-        delete user.created_at
         delete user.updated_at
         delete user.image_id
         return user

@@ -15,12 +15,7 @@ class CouponService {
             return false
         }
 
-        for (let user of users) {
-            user = await User.find(user)
-            if (user instanceof User) {
-                await this.model.users().sync([user.id], null, this.trx)
-            }
-        }
+        await this.model.users().sync(users, null, this.trx)
     }
 
     async syncOrders(orders) {
@@ -28,12 +23,7 @@ class CouponService {
             return false
         }
 
-        for (let order of orders) {
-            order = await Order.find(order)
-            if (order instanceof Order) {
-                await this.model.orders().sync([order.id], null, this.trx)
-            }
-        }
+        await this.model.orders().sync(orders, null, this.trx)
     }
 
     async syncProducts(products) {
@@ -41,12 +31,7 @@ class CouponService {
             return false
         }
 
-        for (let product of products) {
-            product = await Product.find(product)
-            if (product instanceof Product) {
-                await this.model.products().sync([product.id], null, this.trx)
-            }
-        }
+        await this.model.products().sync(products, null, this.trx)
     }
 }
 
