@@ -2,7 +2,6 @@
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
-const Order = use('App/Models/Order')
 
 class Coupon extends Model {
   static get dates() {
@@ -19,13 +18,6 @@ class Coupon extends Model {
 
   orders() {
     return this.belongsToMany('App/Models/Order')
-  }
-
-  async calculateDiscount(order_id) {
-    const order = await this.model
-      .orders()
-      .where('id', order_id)
-      .first()
   }
 }
 
