@@ -22,10 +22,14 @@ class CategoryController {
    * @param { transform } ctx.transform
    */
   async index({ response, transform, pagination }) {
-    const categories = await Category.query().paginate(
-      pagination.page,
-      pagination.perpage
-    )
+    const { title } = request.only(['title'])
+    const query = Category.query()
+
+    if (title) {
+      query.where('title', 'LIKE', `%${title}%`)
+    }
+
+    const categories = await query.paginate(pagination.page, pagination.perpage)
     return response.send(await transform.paginate(categories, Transformer))
   }
 
